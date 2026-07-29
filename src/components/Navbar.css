@@ -1,81 +1,270 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
-@import url('https://googleapis.com');
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
 
+/* =========================================================
+   NAVBAR
+========================================================= */
 
 .navbar {
+  position: relative;
+
+  height: 68px;
+
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  background-color: #ffffff;
-  padding: 14px 40px;
-  font-weight: 700;
-  border-bottom: 1px solid #eaeaea;
+  justify-content: space-between;
+
+  padding: 0 40px;
+
+  background: #ffffff;
+
+  border-bottom: 1px solid #eeeeee;
+
+  font-family: 'Plus Jakarta Sans', sans-serif;
+
+  z-index: 100;
 }
 
 
+/* =========================================================
+   LOGO
+========================================================= */
+
 .navbar-logo {
-  font-family: "Canva Sans", "Open Sans", sans-serif;
-  font-size: 22px;
+  font-size: 21px;
   font-weight: 700;
-  color: #2b303a;
-  letter-spacing: -0.5px;
+  letter-spacing: -0.9px;
+
+  color: #20232a;
+
+  cursor: pointer;
 }
 
 .navbar-logo span {
   color: #8b95a5;
-}
-
-/* Menu Links ဒီဇိုင်း */
-.navbar-links {
-  display: flex;
-  list-style: none;
-  gap: 28px;
-  margin: 0;
-  padding: 0;
-}
-
-.navbar-links li {
-  font-size: 14px;
   font-weight: 500;
-  color: #5d6778;
-  cursor: pointer;
-  transition: color 0.2s ease;
 }
 
-.navbar-links li:hover {
-  color: #1a1d24;
+
+/* =========================================================
+   CENTER NAVIGATION
+========================================================= */
+
+.navbar-links {
+  position: absolute;
+
+  left: 50%;
+  transform: translateX(-50%);
+
+  display: flex;
+  align-items: center;
+
+  gap: 38px;
 }
 
-/* ညာဘက် Log in / Sign up Button ဒီဇိုင်း */
+.navbar-links a {
+  position: relative;
+
+  text-decoration: none;
+
+  font-size: 13px;
+font-weight: 500;
+letter-spacing: -0.2px;
+color: #686f7a;
+
+  transition: color 0.25s ease;
+}
+
+
+/* =========================================================
+   NAVIGATION HOVER
+========================================================= */
+
+.navbar-links a:hover {
+  color: #17191d;
+}
+
+
+/* =========================================================
+   ACTIVE LINK
+========================================================= */
+
+.navbar-links a.active {
+  color: #17191d;
+  font-weight: 600;
+}
+
+
+/* Small underline */
+
+/* =========================================================
+   NAVIGATION UNDERLINE
+========================================================= */
+
+.navbar-links a::after {
+  content: '';
+
+  position: absolute;
+
+  left: 0;
+  bottom: -7px;
+
+  width: 0;
+  height: 1.5px;
+
+  background: #17191d;
+
+  border-radius: 2px;
+
+  transition: width 0.25s ease;
+}
+
+
+/* Active */
+
+.navbar-links a.active::after {
+  width: 100%;
+}
+
+
+/* Hover */
+
+.navbar-links a:hover::after {
+  width: 100%;
+}
+
+
+/* =========================================================
+   RIGHT SIDE
+========================================================= */
+
 .navbar-right {
   display: flex;
   align-items: center;
-  gap: 16px;
+
+  gap: 18px;
 }
 
+
+/* =========================================================
+   LOGIN
+========================================================= */
+
 .login-btn {
-  font-size: 14px;
+  border: none;
+
+  background: transparent;
+
+  padding: 8px 4px;
+
+  font-family: 'Inter', sans-serif;
+
+  font-size: 13px;
   font-weight: 500;
-  color: #5d6778;
+
+  color: #606773;
+
   cursor: pointer;
+
+  transition: color 0.2s ease;
 }
 
 .login-btn:hover {
-  color: #1a1d24;
+  color: #111318;
 }
 
+
+/* =========================================================
+   SIGN UP
+========================================================= */
+
 .signup-btn {
-  font-size: 14px;
-  font-weight: 500;
-  color: #2b303a;
-  background-color: #f1f3f5;
   border: none;
-  padding: 8px 18px;
-  border-radius: 20px;
+
+  background: #17191d;
+
+  color: #ffffff;
+
+  padding: 9px 17px;
+
+  border-radius: 9px;
+
+  font-family: 'Inter', sans-serif;
+
+  font-size: 13px;
+  font-weight: 600;
+
   cursor: pointer;
-  transition: background-color 0.2s ease;
+
+  transition:
+    background 0.25s ease,
+    transform 0.25s ease;
 }
 
 .signup-btn:hover {
-  background-color: #e9ecef;
+  background: #007bff;
+
+  transform: translateY(-1px);
+}
+
+
+/* =========================================================
+   RESPONSIVE
+========================================================= */
+
+@media (max-width: 700px) {
+
+  .navbar {
+    padding: 0 20px;
+  }
+
+  .navbar-links {
+    gap: 20px;
+  }
+
+  .navbar-links a {
+    font-size: 12px;
+  }
+
+  .login-btn {
+    display: none;
+  }
+
+}
+
+
+@media (max-width: 500px) {
+
+  .navbar {
+    height: 62px;
+    padding: 0 16px;
+  }
+
+  .navbar-logo {
+    font-size: 18px;
+  }
+
+  .navbar-links {
+    position: static;
+
+    transform: none;
+
+    margin-left: auto;
+    margin-right: 15px;
+
+    gap: 14px;
+  }
+
+  .navbar-links a {
+    font-size: 11px;
+  }
+
+  .navbar-links a.active::after {
+    bottom: -5px;
+  }
+
+  .signup-btn {
+    padding: 8px 12px;
+    font-size: 11px;
+  }
+
 }
