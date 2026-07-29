@@ -1,0 +1,81 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+@import url('https://googleapis.com');
+
+
+.navbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: #ffffff;
+  padding: 14px 40px;
+  font-weight: 700;
+  border-bottom: 1px solid #eaeaea;
+}
+
+
+.navbar-logo {
+  font-family: "Canva Sans", "Open Sans", sans-serif;
+  font-size: 22px;
+  font-weight: 700;
+  color: #2b303a;
+  letter-spacing: -0.5px;
+}
+
+.navbar-logo span {
+  color: #8b95a5;
+}
+
+/* Menu Links ဒီဇိုင်း */
+.navbar-links {
+  display: flex;
+  list-style: none;
+  gap: 28px;
+  margin: 0;
+  padding: 0;
+}
+
+.navbar-links li {
+  font-size: 14px;
+  font-weight: 500;
+  color: #5d6778;
+  cursor: pointer;
+  transition: color 0.2s ease;
+}
+
+.navbar-links li:hover {
+  color: #1a1d24;
+}
+
+/* ညာဘက် Log in / Sign up Button ဒီဇိုင်း */
+.navbar-right {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.login-btn {
+  font-size: 14px;
+  font-weight: 500;
+  color: #5d6778;
+  cursor: pointer;
+}
+
+.login-btn:hover {
+  color: #1a1d24;
+}
+
+.signup-btn {
+  font-size: 14px;
+  font-weight: 500;
+  color: #2b303a;
+  background-color: #f1f3f5;
+  border: none;
+  padding: 8px 18px;
+  border-radius: 20px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.signup-btn:hover {
+  background-color: #e9ecef;
+}

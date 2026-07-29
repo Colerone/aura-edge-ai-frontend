@@ -1,0 +1,665 @@
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+
+
+/* =========================================================
+   HERO WRAPPER
+========================================================= */
+
+.hero-wrapper {
+  background-color: #f0f2f5;
+  padding: 10px;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+}
+
+
+/* =========================================================
+   HERO CONTAINER
+========================================================= */
+
+.hero-container {
+  background-color: #f8f9fa;
+  border-radius: 28px;
+  padding: 0px 32px;
+  position: relative;
+  overflow: hidden;
+  min-height: 88vh;
+}
+
+
+/* =========================================================
+   HERO BODY
+========================================================= */
+
+.hero-body {
+  position: relative;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  margin-top: 20px;
+  min-height: 620px;
+}
+
+
+/* =========================================================
+   LEFT CONTENT
+========================================================= */
+
+.hero-content {
+  position: absolute;
+
+  left: 20px;
+  top: 90px;
+
+  width: 430px;
+
+  z-index: 4;
+}
+
+
+/* =========================================================
+   SMALL BADGE
+========================================================= */
+
+.hero-badge {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  width: fit-content;
+
+  margin-bottom: 18px;
+
+  font-size: 11px;
+  font-weight: 700;
+
+  letter-spacing: 1.4px;
+
+  color: #555;
+}
+
+.hero-badge span {
+  font-size: 15px;
+  color: #111;
+}
+
+
+/* =========================================================
+   MAIN HEADLINE
+========================================================= */
+
+.main-headline {
+  margin: 0;
+
+  font-size: 40px;
+  line-height: 1.12;
+
+  font-weight: 800;
+
+  letter-spacing: -1.5px;
+
+  color: #111;
+}
+
+.main-headline span {
+  color: #555;
+}
+
+
+/* =========================================================
+   DESCRIPTION
+========================================================= */
+
+.hero-description {
+  max-width: 410px;
+
+  margin-top: 22px;
+  margin-bottom: 28px;
+
+  font-size: 15px;
+  line-height: 1.7;
+
+  font-weight: 400;
+
+  color: #666;
+}
+
+
+/* =========================================================
+   CTA BUTTON
+========================================================= */
+
+.hero-cta {
+  display: inline-flex;
+
+  align-items: center;
+  justify-content: center;
+
+  gap: 12px;
+
+  padding: 13px 20px;
+
+  border: none;
+  border-radius: 12px;
+
+  background-color: #111;
+  color: white;
+
+  font-family: 'Plus Jakarta Sans', sans-serif;
+
+  font-size: 13px;
+  font-weight: 600;
+
+  cursor: pointer;
+
+  transition:
+    transform 0.25s ease,
+    background-color 0.25s ease,
+    box-shadow 0.25s ease;
+}
+
+.hero-cta span {
+  font-size: 18px;
+  line-height: 0;
+}
+
+.hero-cta:hover {
+  background-color: #007bff;
+
+  transform: translateY(-2px);
+
+  box-shadow:
+    0 10px 25px rgba(0, 123, 255, 0.18);
+}
+
+
+/* =========================================================
+   MODEL IMAGE
+========================================================= */
+
+.model-image {
+  position: relative;
+
+  z-index: 2;
+
+  height: 590px;
+
+  object-fit: cover;
+
+  margin-top: 0px;
+  margin-left: 0px;
+
+  opacity: 0;
+}
+
+
+/* =========================================================
+   FLOATING AI CARD
+========================================================= */
+
+.floating-card {
+  position: absolute;
+
+  right: 12%;
+  bottom: 45px;
+
+  z-index: 5;
+
+  display: flex;
+  align-items: center;
+
+  gap: 14px;
+
+  padding: 15px 20px;
+
+  background: rgba(255, 255, 255, 0.72);
+
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+
+  border: 1px solid rgba(255, 255, 255, 0.9);
+
+  border-radius: 18px;
+
+  box-shadow:
+    0 15px 35px rgba(0, 0, 0, 0.08);
+}
+
+/* =========================================================
+   RIGHT SIDE AI INSIGHTS
+========================================================= */
+
+.ai-insights {
+  position: absolute;
+
+  right: 45px;
+  top: 90px;
+
+  width: 285px;
+
+  z-index: 4;
+}
+
+
+/* Small Heading */
+
+.insights-heading {
+  display: flex;
+  align-items: center;
+
+  gap: 8px;
+
+  margin-bottom: 18px;
+}
+
+.insights-heading span {
+  font-size: 15px;
+  color: #111;
+}
+
+.insights-heading p {
+  margin: 0;
+
+  font-size: 10px;
+  font-weight: 700;
+
+  letter-spacing: 1.4px;
+
+  color: #777;
+}
+
+
+/* Main Heading */
+
+.ai-insights h2 {
+  margin: 0;
+
+  font-size: 27px;
+  line-height: 1.2;
+
+  font-weight: 800;
+
+  letter-spacing: -0.8px;
+
+  color: #111;
+}
+
+
+/* Description */
+
+.insights-description {
+  margin: 15px 0 25px 0;
+
+  font-size: 12px;
+  line-height: 1.6;
+
+  color: #777;
+}
+
+
+/* =========================================================
+   INSIGHT LIST
+========================================================= */
+
+.insight-list {
+  display: flex;
+  flex-direction: column;
+
+  gap: 13px;
+}
+
+
+/* Individual Item */
+
+.insight-item {
+  display: flex;
+  align-items: center;
+
+  gap: 13px;
+
+  padding: 5px 0;
+
+  border-bottom: 1px solid #e5e5e5;
+}
+
+
+/* Number */
+
+.insight-number {
+  width: 32px;
+  height: 32px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  flex-shrink: 0;
+
+  border-radius: 10px;
+
+  background: #111;
+  color: white;
+
+  font-size: 9px;
+  font-weight: 700;
+}
+
+
+/* Item Title */
+
+.insight-item h3 {
+  margin: 0 0 3px 0;
+
+  font-size: 13px;
+  font-weight: 700;
+
+  color: #111;
+}
+
+
+/* Item Description */
+
+.insight-item p {
+  margin: 0;
+
+  font-size: 10px;
+  line-height: 1.4;
+
+  color: #888;
+}
+
+
+/* =========================================================
+   INSIGHTS ANIMATION
+========================================================= */
+
+.animate-insights {
+  opacity: 0;
+
+  animation:
+    insightsIn 1s cubic-bezier(0.16, 1, 0.3, 1) 0.8s forwards;
+}
+
+
+@keyframes insightsIn {
+
+  from {
+    opacity: 0;
+    transform: translateX(30px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+
+}
+
+/* =========================================================
+   CARD ICON
+========================================================= */
+
+.card-icon {
+  width: 38px;
+  height: 38px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 12px;
+
+  background-color: #111;
+
+  color: white;
+
+  font-size: 17px;
+}
+
+
+/* =========================================================
+   CARD CONTENT
+========================================================= */
+
+.card-details {
+  min-width: 190px;
+}
+
+.card-label {
+  display: block;
+
+  margin-bottom: 4px;
+
+  font-size: 9px;
+
+  font-weight: 700;
+
+  letter-spacing: 1.2px;
+
+  color: #777;
+}
+
+.card-details h3 {
+  margin: 0 0 4px 0;
+
+  font-size: 15px;
+
+  font-weight: 700;
+
+  color: #111;
+}
+
+.card-details p {
+  margin: 0;
+
+  font-size: 10px;
+
+  line-height: 1.4;
+
+  color: #777;
+}
+
+
+/* =========================================================
+   ENTRANCE ANIMATIONS
+========================================================= */
+
+
+/* Headline / Text */
+
+.animate-fade-in {
+  opacity: 0;
+
+  animation:
+    fadeIn 0.9s ease-out 0.25s forwards;
+}
+
+
+/* Model */
+
+.animate-slide-up {
+  animation:
+    slideUp 1.2s cubic-bezier(0.16, 1, 0.3, 1) 0.35s forwards;
+}
+
+
+/* Card */
+
+.animate-card-pop {
+  opacity: 0;
+
+  animation:
+    cardPop 0.9s cubic-bezier(0.34, 1.56, 0.64, 1) 0.7s forwards;
+}
+
+
+/* =========================================================
+   KEYFRAMES
+========================================================= */
+
+@keyframes fadeIn {
+
+  from {
+    opacity: 0;
+    transform: translateX(-20px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+
+}
+
+
+@keyframes slideUp {
+
+  from {
+    opacity: 0;
+    transform: translateY(60px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+}
+
+
+@keyframes cardPop {
+
+  from {
+    opacity: 0;
+    transform: translateY(30px) scale(0.9);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+
+}
+
+
+/* =========================================================
+   RESPONSIVE DESIGN
+========================================================= */
+
+@media (max-width: 1100px) {
+
+  .hero-content {
+    left: 10px;
+    width: 380px;
+  }
+
+  .main-headline {
+    font-size: 34px;
+  }
+
+  .model-image {
+    height: 540px;
+    margin-left: 350px;
+  }
+
+  .floating-card {
+    right: 5%;
+  }
+
+}
+
+
+@media (max-width: 850px) {
+
+  .hero-container {
+    min-height: auto;
+  }
+
+  .hero-body {
+    min-height: 800px;
+
+    display: flex;
+    flex-direction: column;
+
+    justify-content: flex-start;
+  }
+
+  .hero-content {
+    position: relative;
+
+    left: auto;
+    top: auto;
+
+    width: 100%;
+
+    text-align: center;
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .main-headline {
+    font-size: 32px;
+  }
+
+  .hero-description {
+    max-width: 500px;
+  }
+
+  .model-image {
+    height: 500px;
+
+    margin: 20px 0 0 0;
+  }
+
+  .floating-card {
+    right: 50%;
+    transform: translateX(50%);
+
+    bottom: 20px;
+  }
+
+}
+
+
+@media (max-width: 500px) {
+
+  .hero-wrapper {
+    padding: 10px;
+  }
+
+  .hero-container {
+    padding: 25px 20px;
+
+    border-radius: 20px;
+  }
+
+  .hero-body {
+    min-height: 700px;
+  }
+
+  .main-headline {
+    font-size: 27px;
+  }
+
+  .hero-description {
+    font-size: 13px;
+  }
+
+  .model-image {
+    height: 400px;
+  }
+
+  .floating-card {
+    width: 260px;
+
+    padding: 12px 15px;
+  }
+
+  .card-details {
+    min-width: 0;
+  }
+
+}
