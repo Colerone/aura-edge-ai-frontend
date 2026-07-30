@@ -16,7 +16,7 @@ function Hero() {
             {/* Small Badge */}
             <div className="hero-badge animate-fade-in">
               <span>✦</span>
-              Aura Edge AI-POWERED
+              AURA Edge AI-Powered
             </div>
 
             {/* Main Headline */}
@@ -75,7 +75,7 @@ function Hero() {
 
   <div className="insights-heading">
     <span>✦</span>
-    <p>AI-POWERED SKIN INSIGHTS</p>
+    <p>AI-Powered SKIN INSIGHTS</p>
   </div>
 
   <h2>
