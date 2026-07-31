@@ -7,28 +7,12 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
-node_modules
-dist
-dist-ssr
-*.local
-
-# Editor directories and files
-.vscode/*
-!.vscode/extensions.json
-.idea
-.DS_Store
-*.suo
-*.ntvs*
-*.njsproj
-*.sln
-*.sw?
-.env
 # Dependencies
 node_modules/
 
 # Build
 dist/
-build/
+dist-ssr/
 
 # Environment
 .env
@@ -36,8 +20,22 @@ build/
 .env.development.local
 .env.production.local
 
+# Editor
+.vscode/*
+!.vscode/extensions.json
+.idea/
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# User uploaded / generated files
+uploads/
+outputs/
+results/
+test-images/
+
 # Images / Assets
-src/assets/*.jpg
-src/assets/*.jpeg
-src/assets/*.png
-src/assets/*.webp
+src/assets/*
