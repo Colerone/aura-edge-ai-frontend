@@ -7,7 +7,7 @@ function Navbar() {
 
       {/* Logo */}
       <div className="navbar-logo">
-        Aura Edge<span>.ai</span>
+        AURA Edge AI
       </div>
 
       {/* Navigation */}

@@ -56,11 +56,19 @@ function DetectionSection() {
         </div>
 
         {/* Short Description */}
-        <p className="upload-description">
-          Upload a facial image, we detect image and recommend your skin..
-        </p>
+        <h1 className="upload-description">
+          Upload a facial image, we detect image and recommend your skin
+        </h1>
 
-        <div className="detection-types">
+      </div>
+
+      <div className="detection-right">
+
+        <div className="upload-content">
+           <h1 className="upload-description">
+          What kind of facial diseases can we detect?
+        </h1>
+          <div className="detection-types">
           <span>Acne</span>
           <i></i>
           <span>Melasma</span>
@@ -69,12 +77,9 @@ function DetectionSection() {
           <i></i>
           <span>Freckle</span>
         </div>
-      </div>
 
-      {/* RIGHT SIDE — UPLOAD */}
-      <div className="detection-right">
-        <div className="upload-content">
           <label className="upload-box">
+
             {selectedImage ? (
               <img
                 src={selectedImage}
@@ -83,9 +88,17 @@ function DetectionSection() {
               />
             ) : (
               <div className="upload-placeholder">
-                <span className="upload-btn-blue">Upload Image</span>
-                <p className="drop-text">or drop a file,</p>
-                <small className="file-note">JPG, JPEG or PNG supported</small>
+                <span className="upload-btn-blue">
+                  Upload Image
+                </span>
+
+                <p className="drop-text">
+                  or drop a file,
+                </p>
+
+                <small className="file-note">
+                  JPG, JPEG or PNG supported
+                </small>
               </div>
             )}
 
@@ -95,7 +108,27 @@ function DetectionSection() {
               onChange={handleImageChange}
               hidden
             />
+
           </label>
+
+
+          {/* ဒီနေရာမှာ ထည့်တာ */}
+          <div className="sample-images-section">
+
+            <div className="sample-text">
+              <strong>No image?</strong>
+              <strong>Try one of these:</strong>
+            </div>
+
+            <div className="sample-images">
+              <img src={skinImage} alt="Sample skin" />
+              <img src={skinImage} alt="Sample skin" />
+              <img src={skinImage} alt="Sample skin" />
+              <img src={skinImage} alt="Sample skin" />
+            </div>
+
+          </div>
+
 
           {/* Analyze Button */}
           {selectedImage && (
@@ -106,6 +139,7 @@ function DetectionSection() {
           )}
 
         </div>
+
       </div>
     </section>
   );
