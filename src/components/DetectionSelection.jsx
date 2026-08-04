@@ -1,11 +1,12 @@
 import React, { useEffect, useRef, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import './DetectionSelection.css';
 
 import skinImage from '../assets/Chemical Peel - Diminish (1)_result.jpg';
 
 function DetectionSection() {
   const sectionRef = useRef(null);
-
+  const navigate = useNavigate();
   const [isVisible, setIsVisible] = useState(false);
   const [selectedImage, setSelectedImage] = useState(null);
 
@@ -30,13 +31,17 @@ function DetectionSection() {
   }, []);
 
   /* IMAGE UPLOAD */
-  const handleImageChange = (event) => {
-    const file = event.target.files[0];
+const handleImageChange = (event) => {
+  const file = event.target.files[0];
 
-    if (file) {
-      setSelectedImage(URL.createObjectURL(file));
-    }
-  };
+  if (file) {
+    navigate('/analysis', {
+      state: {
+        imageFile: file,
+      },
+    });
+  }
+};
 
   return (
     <section
