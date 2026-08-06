@@ -368,45 +368,58 @@
         {diseaseName}
       </h2>
 
-      <p className="fade-item delay3">
-        • {detectionCount} detected areas
-      </p>
+<h3 className="severity fade-item delay3">
+  {recommendation.severity} Severity
+</h3>
+
+      <div
+  className={`severity-badge ${recommendation.severity.toLowerCase()}`}
+>
+  {recommendation.severity}
+</div>
 
       <p className="fade-item delay4">
-        • Confidence {(highestConfidence * 100).toFixed(1)}%
-      </p>
+  <strong>Detected Areas</strong>
 
-      <p className="fade-item delay5">
-
-  • Severity : {recommendation.severity}
-
+  <span>{detectionCount}</span>
 </p>
 
-      {recommendation.ingredients.map((item,index)=>(
+<p className="fade-item delay5">
+  <strong>Confidence</strong>
 
-        <p
-          key={index}
-          className={`fade-item delay${index+6}`}
-        >
-          ✓ {item}
-        </p>
+  <span>
+    {(highestConfidence * 100).toFixed(1)}%
+  </span>
+</p>    
+
+    <h4 className="section-title fade-item delay6">
+  Recommended Ingredients
+</h4>
+
+      {recommendation.ingredients.map((item,index)=>(
+<p
+ key={index}
+ className={`list-item fade-item delay${index+7}`}
+>
+ ✓ {item}
+</p>
 
       ))}
 
-      <p
-        className={`fade-item delay${recommendation.ingredients.length+6}`}
-      >
-        • Treatment Recommendation
-      </p>
+      <h4
+ className={`section-title fade-item delay${recommendation.ingredients.length+7}`}
+>
+ Treatment Recommendation
+</h4>
 
       {recommendation.treatment.map((item,index)=>(
 
-        <p
-          key={index}
-          className={`fade-item delay${index+10}`}
-        >
-          ✓ {item}
-        </p>
+      <p
+ key={index}
+ className={`list-item fade-item delay${index+11}`}
+>
+ ✓ {item}
+</p>
 
       ))}
 
