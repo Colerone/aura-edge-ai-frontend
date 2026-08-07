@@ -9,7 +9,7 @@ function DetectionComparison() {
   const comparisonRef = useRef(null);
 
   const [isVisible, setIsVisible] = useState(false);
-  const [position, setPosition] = useState(50);
+  const [position, setPosition] = useState(50); // Default လယ်တည့်တည့်မှာထားရန်
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -35,10 +35,7 @@ function DetectionComparison() {
     if (!comparisonRef.current) return;
 
     const rect = comparisonRef.current.getBoundingClientRect();
-
-    let newPosition =
-      ((clientX - rect.left) / rect.width) * 100;
-
+    let newPosition = ((clientX - rect.left) / rect.width) * 100;
     newPosition = Math.max(0, Math.min(100, newPosition));
 
     setPosition(newPosition);
@@ -65,23 +62,20 @@ function DetectionComparison() {
         isVisible ? 'comparison-visible' : ''
       }`}
     >
-
       {/* =========================================
           SECTION HEADER
       ========================================= */}
-
       <div className="comparison-header">
-
         <h2 className="comparison-title">
           See Sample How Our AI
           <br />
           Detects Your Skin
         </h2>
-
-        
-
       </div>
 
+      {/* =========================================
+          COMPARISON SLIDER
+      ========================================= */}
       <div
         ref={comparisonRef}
         className="comparison-container"
@@ -89,52 +83,38 @@ function DetectionComparison() {
         onClick={handleClick}
         onTouchMove={handleTouchMove}
       >
-
+        {/* နောက်ခံ (Original Image) */}
         <img
           src={originalImage}
           alt="Original facial image"
           className="comparison-image original-image"
         />
 
-
-
-        <div
-          className="detected-image-wrapper"
+        {/* ရှေ့ပိုင်းက ဖြတ်ပြမယ့်ပုံ (Detected Image) - Clip-path သုံးထားသည် */}
+        <img
+          src={detectedImage}
+          alt="AI detected facial skin conditions"
+          className="comparison-image detected-image"
           style={{
-            width: `${position}%`,
+            clipPath: `inset(0 ${100 - position}% 0 0)`
           }}
-        >
+        />
 
-          <img
-            src={detectedImage}
-            alt="AI detected facial skin conditions"
-            className="comparison-image detected-image"
-          />
-
-        </div>
-
-
+        {/* Slider Button နဲ့ Line */}
         <div
           className="comparison-slider"
-          style={{
-            left: `${position}%`,
-          }}
+          style={{ left: `${position}%` }}
           onMouseDown={(event) => {
             event.preventDefault();
           }}
         >
-
           <div className="slider-line"></div>
-
           <div className="slider-button">
             <span>‹</span>
             <span>›</span>
           </div>
-
         </div>
-
       </div>
-
     </section>
   );
 }
