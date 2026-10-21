@@ -18,13 +18,13 @@ function Navbar() {
       </div>
 
       {/* Right Side */}
-      <div className="navbar-right">
+      {/* <div className="navbar-right">
         <button className="login-btn">Log in</button>
 
         <button className="signup-btn">
           Sign up
         </button>
-      </div>
+      </div> */}
 
     </nav>
   );
