@@ -2,784 +2,257 @@
 @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
 
 .realtime-section {
-  padding: 85px 7% 95px;
-  background: #fff;
-  color: #17382b;
+  width: 100%;
+  padding: 90px 20px 100px;
+  background: #ffffff;
   font-family: 'Plus Jakarta Sans', sans-serif;
+  color: #172f23;
 }
 
 .realtime-container {
-  width: 100%;
-  max-width: 1440px;
-  margin: auto;
+  max-width: 1100px;
+  margin: 0 auto;
 }
+
+/* HEADER */
 
 .realtime-header {
   text-align: center;
-  margin-bottom: 40px;
+  margin-bottom: 42px;
 }
 
-.realtime-eyebrow {
+.realtime-header > span {
   display: inline-block;
   margin-bottom: 14px;
-  color: #17835b;
+  color: #16764e;
   font-size: 11px;
   font-weight: 800;
-  letter-spacing: 2px;
+  letter-spacing: 1.8px;
 }
 
 .realtime-header h2 {
   margin: 0;
-  font-size: clamp(30px, 3.4vw, 45px);
-  line-height: 1.25;
-  letter-spacing: -1.5px;
+  color: #172f23;
+  font-size: clamp(30px, 4vw, 43px);
   font-weight: 800;
-  color: #143e2e;
+  letter-spacing: -1.5px;
+  line-height: 1.3;
 }
 
 .realtime-header p {
-  margin: 14px 0 0;
-  color: #7b8b82;
+  max-width: 550px;
+  margin: 13px auto 0;
+  color: #7b877f;
   font-size: 14px;
   line-height: 1.8;
 }
 
-.realtime-layout {
-  display: grid;
-  grid-template-columns: minmax(0, 1.2fr) minmax(330px, .85fr);
-  gap: 28px;
-  align-items: stretch;
+/* MAIN CONTENT */
+
+.realtime-content {
+  max-width: 720px;
+  margin: 0 auto;
+  text-align: center;
 }
 
-/* STATIC IMAGE PREVIEW */
+/* STATISTICS */
 
-.realtime-camera-card {
-  padding: 12px;
-  min-width: 0;
-  border: 1px solid #e1eee7;
-  border-radius: 25px;
-  background: #fff;
-  box-shadow: 0 16px 45px rgba(24, 76, 52, .055);
-}
-
-.realtime-preview {
-  position: relative;
-  width: 100%;
-  aspect-ratio: 4 / 3;
-  min-height: 320px;
-  overflow: hidden;
-  border-radius: 17px;
-  background: #e8f1eb;
-  isolation: isolate;
-}
-
-.realtime-preview-image {
-  display: block;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  object-position: center 43%;
-}
-
-.preview-vignette {
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(
-    180deg,
-    rgba(10, 38, 25, .10),
-    transparent 28%,
-    transparent 63%,
-    rgba(10, 38, 25, .30)
-  );
-  pointer-events: none;
-}
-
-.preview-status {
-  position: absolute;
-  top: 18px;
-  left: 18px;
+.scan-statistics {
   display: flex;
   align-items: center;
-  gap: 9px;
-  padding: 10px 14px;
-  border: 1px solid rgba(255, 255, 255, .75);
-  border-radius: 30px;
-  background: rgba(255, 255, 255, .92);
-  color: #315a45;
-  font-size: 10px;
-  font-weight: 800;
-  letter-spacing: .6px;
+  justify-content: center;
+  gap: 70px;
+  padding: 15px 0 25px;
 }
 
-.preview-status-dot,
-.preview-pulse {
-  flex-shrink: 0;
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background: #22b982;
-  box-shadow: 0 0 0 4px rgba(34, 185, 130, .12);
-}
-
-.preview-bottom-label {
-  position: absolute;
-  bottom: 22px;
-  left: 22px;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  color: #fff;
-  font-size: 11px;
-  font-weight: 800;
-  letter-spacing: 1.1px;
-}
-
-.preview-caption {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 16px;
-  padding: 21px 10px 12px;
-}
-
-.preview-caption strong {
-  font-size: 14px;
-  font-weight: 800;
-  color: #244b37;
-}
-
-.preview-caption p {
-  margin: 7px 0 0;
-  color: #819087;
-  font-size: 11px;
-  line-height: 1.7;
-}
-
-.preview-duration {
-  display: grid;
-  place-items: center;
-  width: 57px;
-  height: 57px;
-  flex-shrink: 0;
-  border: 1px solid #d9ebe0;
-  border-radius: 50%;
-  color: #17734e;
-  font-size: 11px;
-  font-weight: 800;
-}
-
-/* SKIN ANALYSIS PANEL — REPLACES HOW IT WORKS */
-
-.scan-overview {
+.stat-item {
   display: flex;
   flex-direction: column;
-  padding: 29px;
-  border: 1px solid #dfefe5;
-  border-radius: 25px;
-  background: linear-gradient(150deg, #f7fcf9, #eff8f2);
-}
-
-.overview-heading {
-  display: flex;
   align-items: center;
-  gap: 15px;
-  margin-bottom: 27px;
+  gap: 7px;
 }
 
-.overview-heading-icon {
-  display: grid;
-  place-items: center;
-  width: 53px;
-  height: 53px;
-  flex-shrink: 0;
-  border-radius: 17px;
-  background: #e0f2e7;
-  color: #17764f;
+.stat-item strong {
+  color: #176f4b;
   font-size: 27px;
-}
-
-.overview-heading h3 {
-  margin: 0 0 6px;
-  color: #193f2d;
-  font-size: 22px;
   font-weight: 800;
 }
 
-.overview-heading p {
-  margin: 0;
-  color: #7b9082;
+.stat-item span {
+  color: #89948d;
   font-size: 11px;
-  line-height: 1.6;
+  font-weight: 500;
 }
 
-.overview-duration {
+.stat-divider {
+  width: 1px;
+  height: 43px;
+  background: #e1e9e3;
+}
+
+/* CONDITIONS */
+
+.skin-conditions {
   display: flex;
+  justify-content: center;
   align-items: center;
-  justify-content: space-between;
-  gap: 15px;
-  padding: 17px;
-  border: 1px solid #dfede4;
-  border-radius: 17px;
-  background: rgba(255, 255, 255, .72);
-}
-
-.overview-duration > div:first-child {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.overview-duration > div:first-child span {
-  color: #86958a;
-  font-size: 9px;
-  font-weight: 800;
-  letter-spacing: 1px;
-}
-
-.overview-duration strong {
-  color: #214c36;
-  font-size: 20px;
-  font-weight: 800;
-}
-
-.duration-clock {
-  display: grid;
-  place-items: center;
-  width: 45px;
-  height: 45px;
-  border-radius: 14px;
-  background: #e5f4e9;
-  color: #17764f;
-  font-size: 32px;
-}
-
-.overview-divider {
-  width: 100%;
-  height: 1px;
-  margin: 25px 0;
-  background: #dcebe2;
-}
-
-.overview-label {
-  margin-bottom: 14px;
-  color: #829488;
-  font-size: 10px;
-  font-weight: 800;
-  letter-spacing: 1.3px;
-}
-
-.condition-list {
-  display: flex;
   flex-wrap: wrap;
-  gap: 10px;
+  gap: 12px;
+  padding: 20px 0;
+  border-top: 1px solid #edf1ee;
+  border-bottom: 1px solid #edf1ee;
+  color: #58675e;
+  font-size: 12px;
+  font-weight: 600;
 }
 
-.condition-item {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  padding: 10px 12px;
-  border: 1px solid #dcebe1;
-  border-radius: 30px;
-  background: rgba(255, 255, 255, .78);
-  color: #42634f;
+.skin-conditions i {
+  color: #b2beb6;
   font-size: 11px;
-  font-weight: 700;
+  font-style: normal;
 }
 
-.condition-dot {
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: #27a675;
+/* DESCRIPTION */
+
+.scan-description {
+  margin: 36px auto 25px;
 }
 
-.overview-note {
-  display: flex;
-  align-items: flex-start;
-  gap: 11px;
-  margin-top: 24px;
+.scan-description h3 {
+  margin: 0 0 11px;
+  color: #233e2d;
+  font-size: 19px;
+  font-weight: 800;
 }
 
-.privacy-icon {
-  flex-shrink: 0;
-  color: #187950;
-  font-size: 21px;
-}
-
-.overview-note p {
-  margin: 0;
-  color: #7b8e82;
-  font-size: 10px;
+.scan-description p {
+  max-width: 490px;
+  margin: 0 auto;
+  color: #859188;
+  font-size: 12px;
   line-height: 1.9;
 }
 
-.realtime-start-button {
+/* BUTTON */
+
+.open-camera-button {
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 16px;
+
   width: 100%;
-  min-height: 58px;
-  margin-top: 25px;
-  padding: 15px 22px;
-  border: 0;
+  max-width: 330px;
+  min-height: 54px;
+  margin: 0 auto;
+
+  padding: 15px 25px;
+  border: none;
   border-radius: 40px;
-  background: linear-gradient(100deg, #176e49, #0b5237);
-  color: #fff;
+
+  background: #176b49;
+  color: #ffffff;
+
   font-family: inherit;
-  font-size: 12px;
-  font-weight: 800;
+  font-size: 13px;
+  font-weight: 700;
+
   cursor: pointer;
-  box-shadow: 0 9px 23px rgba(19, 93, 60, .12);
-  transition: transform .2s, box-shadow .2s;
+  transition: all 0.25s ease;
 }
 
-.realtime-start-button:hover:not(:disabled) {
+.open-camera-button:hover:not(:disabled) {
+  background: #105638;
   transform: translateY(-2px);
-  box-shadow: 0 13px 27px rgba(19, 93, 60, .2);
+  box-shadow: 0 8px 20px rgba(23, 107, 73, 0.16);
 }
 
-.realtime-start-button:disabled {
-  opacity: .6;
+.open-camera-button:disabled {
+  opacity: 0.6;
   cursor: not-allowed;
 }
 
-.button-arrow {
+.open-camera-button span {
   font-size: 19px;
 }
 
-.overview-footnote {
-  margin: 13px 0 0;
-  text-align: center;
-  color: #86968c;
+.camera-permission {
+  margin-top: 14px;
+  color: #929d95;
   font-size: 10px;
 }
 
-.realtime-error,
-.webcam-error {
-  margin-top: 14px;
+.realtime-error {
+  max-width: 480px;
+  margin: 0 auto 17px;
   padding: 12px;
-  border: 1px solid #f0cdcd;
-  border-radius: 12px;
+  border: 1px solid #f0cccc;
+  border-radius: 10px;
   background: #fff5f5;
-  color: #a13a3a;
+  color: #a13c3c;
   font-size: 11px;
-  line-height: 1.7;
-}
-
-/* INFORMATION STRIP */
-
-.realtime-info-bar {
-  display: grid;
-  grid-template-columns: .85fr 1.15fr 1.2fr;
-  gap: 22px;
-  margin-top: 27px;
-  padding: 24px 27px;
-  border: 1px solid #e0eee6;
-  border-radius: 20px;
-  background: #f7fbf8;
-}
-
-.realtime-info-item {
-  display: flex;
-  align-items: center;
-  gap: 13px;
-  min-width: 0;
-}
-
-.realtime-info-item + .realtime-info-item {
-  padding-left: 22px;
-  border-left: 1px solid #dcebe2;
-}
-
-.info-symbol {
-  display: grid;
-  place-items: center;
-  width: 40px;
-  height: 40px;
-  flex-shrink: 0;
-  border-radius: 13px;
-  background: #e4f3e9;
-  color: #187650;
-  font-size: 25px;
-}
-
-.realtime-info-item > div {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-
-.realtime-info-item strong {
-  color: #294c38;
-  font-size: 11px;
-  font-weight: 800;
   line-height: 1.6;
 }
 
-.realtime-info-item div span {
-  color: #829187;
-  font-size: 10px;
-  line-height: 1.7;
-}
 
-/* FULLSCREEN WEBCAM */
+/* =========================================
+   FULLSCREEN WEBCAM - CLEAN VIEW
+========================================= */
 
 .webcam-fullscreen {
   position: fixed;
   inset: 0;
   z-index: 99999;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  overflow: hidden;
-  background: #08140e;
-  color: #fff;
-  font-family: 'Plus Jakarta Sans', sans-serif;
-  isolation: isolate;
-}
 
-.webcam-fullscreen-video {
-  position: absolute;
-  z-index: -3;
-  inset: 0;
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  overflow: hidden;
+
+  background: #000;
+}
+
+/* Fullscreen Camera */
+.webcam-video {
+  position: absolute;
+  inset: 0;
+
+  width: 100%;
+  height: 100%;
+
+  object-fit: contain;
   transform: scaleX(-1);
-  background: #111c16;
+
+  background: #000;
 }
 
-.webcam-screen-shade {
+/* Minimal Close Button */
+.webcam-close-minimal {
   position: absolute;
-  z-index: -2;
-  inset: 0;
-  pointer-events: none;
-  background:
-    linear-gradient(180deg, rgba(0, 0, 0, .56), transparent 24%),
-    linear-gradient(0deg, rgba(0, 0, 0, .78), transparent 44%),
-    linear-gradient(90deg, rgba(0, 20, 10, .15), transparent 45%, rgba(0, 20, 10, .15));
-}
+  top: 20px;
+  right: 25px;
+  z-index: 5;
 
-.webcam-topbar {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 20px;
-  padding: 28px 36px;
-}
+  width: 40px;
+  height: 40px;
 
-.webcam-brand {
-  display: flex;
-  align-items: center;
-  gap: 13px;
-}
+  border: none;
+  background: transparent;
+  color: rgba(255,255,255,0.8);
 
-.webcam-brand-mark {
-  display: grid;
-  place-items: center;
-  width: 46px;
-  height: 46px;
-  border: 1px solid rgba(255, 255, 255, .4);
-  border-radius: 15px;
-  background: rgba(255, 255, 255, .13);
-  font-size: 25px;
-}
+  font-size: 32px;
+  font-weight: 300;
 
-.webcam-brand > div {
-  display: flex;
-  flex-direction: column;
-  gap: 5px;
-}
-
-.webcam-brand strong {
-  font-size: 15px;
-  font-weight: 800;
-}
-
-.webcam-brand > div span {
-  color: rgba(255, 255, 255, .78);
-  font-size: 10px;
-}
-
-.webcam-close {
-  display: grid;
-  place-items: center;
-  width: 48px;
-  height: 48px;
-  border: 1px solid rgba(255, 255, 255, .35);
-  border-radius: 50%;
-  background: rgba(255, 255, 255, .12);
-  color: #fff;
-  font-size: 30px;
   cursor: pointer;
-  backdrop-filter: blur(12px);
+  transition: color 0.2s ease;
 }
 
-.webcam-close:hover {
-  background: rgba(255, 255, 255, .25);
+.webcam-close-minimal:hover {
+  color: #ffffff;
 }
 
-/* SCREEN-WIDE SCAN LINE, NO FACE BOX */
-
-.webcam-scan-line {
-  position: absolute;
-  z-index: -1;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 2px;
-  background: #65f4be;
-  box-shadow:
-    0 0 9px rgba(101, 244, 190, .95),
-    0 0 28px rgba(101, 244, 190, .55),
-    0 15px 55px 12px rgba(40, 200, 137, .08);
-  animation: webcamScanAcross 3.5s ease-in-out infinite alternate;
-  pointer-events: none;
-}
-
-.webcam-center-status {
-  align-self: center;
-  display: flex;
-  align-items: center;
-  gap: 11px;
-  padding: 12px 19px;
-  border: 1px solid rgba(255, 255, 255, .26);
-  border-radius: 40px;
-  background: rgba(7, 28, 17, .45);
-  color: #fff;
-  font-size: 11px;
-  font-weight: 800;
-  letter-spacing: 1px;
-  backdrop-filter: blur(10px);
-}
-
-.webcam-live-dot {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background: #b7c9be;
-}
-
-.webcam-live-dot.active {
-  background: #47f0a7;
-  box-shadow: 0 0 0 5px rgba(71, 240, 167, .15);
-  animation: livePulse 1.2s infinite;
-}
-
-.webcam-bottom-panel {
-  width: min(740px, calc(100% - 40px));
-  margin: 0 auto 30px;
-  padding: 23px;
-  border: 1px solid rgba(255, 255, 255, .2);
-  border-radius: 22px;
-  background: rgba(7, 24, 14, .62);
-  backdrop-filter: blur(18px);
-}
-
-.webcam-timer {
-  display: grid;
-  grid-template-columns: 1fr auto;
-  gap: 8px 16px;
-  align-items: center;
-  margin-bottom: 19px;
-}
-
-.webcam-timer > span {
-  color: rgba(255, 255, 255, .77);
-  font-size: 10px;
-  font-weight: 700;
-  letter-spacing: 1px;
-}
-
-.webcam-timer strong {
-  grid-column: 2;
-  grid-row: 1 / span 2;
-  font-size: 28px;
-  font-variant-numeric: tabular-nums;
-}
-
-.webcam-progress-track {
-  height: 4px;
-  overflow: hidden;
-  border-radius: 20px;
-  background: rgba(255, 255, 255, .2);
-}
-
-.webcam-progress-fill {
-  height: 100%;
-  border-radius: inherit;
-  background: #54ebb0;
-  box-shadow: 0 0 10px rgba(84, 235, 176, .5);
-  transition: width .2s linear;
-}
-
-.webcam-controls {
-  display: flex;
-  gap: 12px;
-}
-
-.webcam-start,
-.webcam-stop,
-.webcam-exit {
-  min-height: 49px;
-  padding: 14px 22px;
-  border-radius: 40px;
-  font-family: inherit;
-  font-size: 12px;
-  font-weight: 800;
-  cursor: pointer;
-  transition: background .2s, transform .2s;
-}
-
-.webcam-start {
-  flex: 1;
-  border: 0;
-  background: #35cf91;
-  color: #093822;
-}
-
-.webcam-start:hover:not(:disabled) {
-  transform: translateY(-1px);
-  background: #62e8af;
-}
-
-.webcam-start:disabled {
-  cursor: wait;
-  opacity: .65;
-}
-
-.webcam-stop {
-  flex: 1;
-  border: 1px solid rgba(255, 180, 180, .5);
-  background: rgba(125, 28, 28, .8);
-  color: #fff;
-}
-
-.webcam-exit {
-  border: 1px solid rgba(255, 255, 255, .4);
-  background: rgba(255, 255, 255, .08);
-  color: #fff;
-}
-
-.webcam-exit:hover {
-  background: rgba(255, 255, 255, .19);
-}
-
-.webcam-hint {
-  margin: 15px 0 0;
-  color: rgba(255, 255, 255, .7);
-  text-align: center;
-  font-size: 10px;
-  line-height: 1.8;
-}
-
-@keyframes webcamScanAcross {
-  from { top: 5%; }
-  to { top: 95%; }
-}
-
-@keyframes livePulse {
-  0%, 100% { opacity: 1; }
-  50% { opacity: .45; }
-}
-
-/* RESPONSIVE */
-
-@media (max-width: 900px) {
-  .realtime-section {
-    padding: 65px 5%;
-  }
-
-  .realtime-layout {
-    grid-template-columns: 1fr;
-  }
-
-  .realtime-preview {
-    min-height: 300px;
-  }
-
-  .realtime-info-bar {
-    grid-template-columns: 1fr;
-    gap: 18px;
-  }
-
-  .realtime-info-item + .realtime-info-item {
-    padding: 18px 0 0;
-    border-top: 1px solid #dcebe2;
-    border-left: 0;
-  }
-}
-
-@media (max-width: 520px) {
-  .realtime-section {
-    padding: 50px 17px 65px;
-  }
-
-  .realtime-header h2 {
-    font-size: 29px;
-    letter-spacing: -.8px;
-  }
-
-  .realtime-header p {
-    font-size: 12px;
-  }
-
-  .realtime-preview {
-    aspect-ratio: 3 / 4;
-    min-height: 300px;
-  }
-
-  .scan-overview {
-    padding: 22px;
-  }
-
-  .webcam-topbar {
-    padding: 19px 17px;
-  }
-
-  .webcam-brand-mark {
-    width: 39px;
-    height: 39px;
-  }
-
-  .webcam-brand strong {
-    font-size: 13px;
-  }
-
-  .webcam-brand > div span {
-    max-width: 200px;
-    font-size: 9px;
-  }
-
-  .webcam-close {
-    width: 42px;
-    height: 42px;
-  }
-
-  .webcam-bottom-panel {
-    width: calc(100% - 24px);
-    margin-bottom: 12px;
-    padding: 16px;
-  }
-
-  .webcam-controls {
-    flex-direction: column;
-  }
-
-  .webcam-exit {
-    width: 100%;
-  }
-
-  .webcam-timer strong {
-    font-size: 24px;
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .webcam-scan-line,
-  .webcam-live-dot.active {
-    animation: none;
+@media (max-width: 600px) {
+  .webcam-close-minimal {
+    top: 12px;
+    right: 12px;
   }
 }
