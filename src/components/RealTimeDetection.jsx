@@ -4,21 +4,42 @@ import { useNavigate } from "react-router-dom";
 import "./RealTimeDetection.css";
 
 const SCAN_DURATION = 30;
+const FRAME_INTERVAL = 200;
+const API_URL = "http://127.0.0.1:8000";
 
 function RealTimeDetection() {
   const navigate = useNavigate();
 
   const videoRef = useRef(null);
   const canvasRef = useRef(null);
+  const overlayCanvasRef = useRef(null);
   const streamRef = useRef(null);
   const timerRef = useRef(null);
+
   const finishingRef = useRef(false);
+  const scanActiveRef = useRef(false);
+  const fpsTimestampsRef = useRef([]);
+
+  const scanResultsRef = useRef({
+    framesProcessed: 0,
+    bestScore: -1,
+    summary: [],
+    resultImage: null,
+  });
 
   const [cameraOpen, setCameraOpen] = useState(false);
   const [cameraReady, setCameraReady] = useState(false);
   const [scanning, setScanning] = useState(false);
+  const [cameraFps, setCameraFps] = useState(0);
   const [remaining, setRemaining] = useState(SCAN_DURATION);
   const [error, setError] = useState("");
+
+  const [metrics, setMetrics] = useState({
+  fps: 0,
+  latency: 0,
+  inferenceLatency: 0,
+  frames: 0,
+});
 
   // Attach camera
   useEffect(() => {
@@ -47,9 +68,99 @@ function RealTimeDetection() {
     };
   }, [cameraOpen]);
 
+  // Measure actual webcam display FPS
+useEffect(() => {
+  if (!cameraReady) return;
+
+  const video = videoRef.current;
+  if (!video) return;
+
+  let active = true;
+  let callbackId = null;
+  let rafId = null;
+
+  const timestamps = [];
+
+  if (typeof video.requestVideoFrameCallback === "function") {
+    const measureFPS = (now) => {
+      if (!active) return;
+
+      timestamps.push(now);
+
+      while (
+        timestamps.length > 2 &&
+        now - timestamps[0] > 1000
+      ) {
+        timestamps.shift();
+      }
+
+      if (timestamps.length >= 2) {
+        const elapsed =
+          timestamps[timestamps.length - 1] -
+          timestamps[0];
+
+        if (elapsed > 0) {
+          setCameraFps(
+            Math.round(
+              ((timestamps.length - 1) * 1000) / elapsed
+            )
+          );
+        }
+      }
+
+      callbackId = video.requestVideoFrameCallback(measureFPS);
+    };
+
+    callbackId = video.requestVideoFrameCallback(measureFPS);
+
+  } else {
+    // Fallback for browsers without requestVideoFrameCallback
+    let lastTime = -1;
+    let startTime = performance.now();
+    let frameCount = 0;
+
+    const measureFallback = () => {
+      if (!active) return;
+
+      if (video.currentTime !== lastTime) {
+        lastTime = video.currentTime;
+        frameCount++;
+      }
+
+      const now = performance.now();
+
+      if (now - startTime >= 1000) {
+        setCameraFps(frameCount);
+        frameCount = 0;
+        startTime = now;
+      }
+
+      rafId = requestAnimationFrame(measureFallback);
+    };
+
+    rafId = requestAnimationFrame(measureFallback);
+  }
+
+  return () => {
+    active = false;
+
+    if (
+      callbackId !== null &&
+      video.cancelVideoFrameCallback
+    ) {
+      video.cancelVideoFrameCallback(callbackId);
+    }
+
+    if (rafId !== null) {
+      cancelAnimationFrame(rafId);
+    }
+  };
+}, [cameraReady]);
+
   // Cleanup
   useEffect(() => {
     return () => {
+      scanActiveRef.current = false;
       clearInterval(timerRef.current);
 
       streamRef.current?.getTracks().forEach((track) => {
@@ -73,6 +184,83 @@ function RealTimeDetection() {
     };
   }, [cameraOpen]);
 
+  // Draw AI bounding boxes
+  const drawDetections = (detections) => {
+    const video = videoRef.current;
+    const canvas = overlayCanvasRef.current;
+
+    if (!video || !canvas || !video.videoWidth || !video.videoHeight) {
+      return;
+    }
+
+    const container = canvas.parentElement;
+    if (!container) return;
+
+    const width = container.clientWidth;
+    const height = container.clientHeight;
+    const dpr = window.devicePixelRatio || 1;
+
+    canvas.width = Math.round(width * dpr);
+    canvas.height = Math.round(height * dpr);
+
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    ctx.clearRect(0, 0, width, height);
+
+    // Match the video object-fit: contain layout
+    const scale = Math.min(
+      width / video.videoWidth,
+      height / video.videoHeight
+    );
+
+    const renderedWidth = video.videoWidth * scale;
+    const renderedHeight = video.videoHeight * scale;
+
+    const offsetX = (width - renderedWidth) / 2;
+    const offsetY = (height - renderedHeight) / 2;
+
+    detections.forEach((item) => {
+      if (!item.box) return;
+
+      const x1 = offsetX + item.box.x1 * scale;
+      const y1 = offsetY + item.box.y1 * scale;
+      const x2 = offsetX + item.box.x2 * scale;
+      const y2 = offsetY + item.box.y2 * scale;
+
+      const boxWidth = x2 - x1;
+      const boxHeight = y2 - y1;
+
+      if (boxWidth <= 0 || boxHeight <= 0) return;
+
+      const label = `${item.class} ${(
+        item.confidence * 100
+      ).toFixed(0)}%`;
+
+      ctx.strokeStyle = "#39D98A";
+      ctx.lineWidth = 2.5;
+      ctx.strokeRect(x1, y1, boxWidth, boxHeight);
+
+      ctx.font = "600 13px Arial";
+
+      const textWidth = ctx.measureText(label).width;
+      const labelHeight = 23;
+      const labelY = Math.max(0, y1 - labelHeight);
+
+      ctx.fillStyle = "#176B49";
+      ctx.fillRect(
+        x1,
+        labelY,
+        textWidth + 14,
+        labelHeight
+      );
+
+      ctx.fillStyle = "#FFFFFF";
+      ctx.fillText(label, x1 + 7, labelY + 16);
+    });
+  };
+
   // Open camera
   const openCamera = async () => {
     setError("");
@@ -86,13 +274,37 @@ function RealTimeDetection() {
       const stream = await navigator.mediaDevices.getUserMedia({
         audio: false,
         video: {
-          facingMode: "user",
+          facingMode: { ideal: "user" },
           width: { ideal: 1920 },
           height: { ideal: 1080 },
+          frameRate: {
+            ideal: 30,
+            max: 30,
+          },
         },
       });
 
       streamRef.current = stream;
+
+      scanResultsRef.current = {
+        framesProcessed: 0,
+        bestScore: -1,
+        summary: [],
+        resultImage: null,
+      };
+
+      fpsTimestampsRef.current = [];
+
+      setMetrics({
+        fps: 0,
+        latency: 0,
+        frames: 0,
+        inferenceLatency: 0,
+      });
+
+      finishingRef.current = false;
+      scanActiveRef.current = false;
+
       setRemaining(SCAN_DURATION);
       setCameraOpen(true);
 
@@ -107,11 +319,8 @@ function RealTimeDetection() {
     }
   };
 
-  // Close camera
-  const closeCamera = () => {
-    clearInterval(timerRef.current);
-    timerRef.current = null;
-
+  // Stop camera
+  const stopCameraStream = () => {
     streamRef.current?.getTracks().forEach((track) => {
       track.stop();
     });
@@ -121,15 +330,26 @@ function RealTimeDetection() {
     if (videoRef.current) {
       videoRef.current.srcObject = null;
     }
+  };
+
+  // Close camera
+  const closeCamera = () => {
+    scanActiveRef.current = false;
+
+    clearInterval(timerRef.current);
+    timerRef.current = null;
+
+    stopCameraStream();
 
     setCameraOpen(false);
     setCameraReady(false);
     setScanning(false);
     setRemaining(SCAN_DURATION);
+
     finishingRef.current = false;
   };
 
-  // Capture final frame
+  // Capture webcam frame
   const captureFrame = () => {
     return new Promise((resolve, reject) => {
       const video = videoRef.current;
@@ -150,66 +370,191 @@ function RealTimeDetection() {
         return;
       }
 
+      // Mirror the captured image
       ctx.save();
       ctx.translate(canvas.width, 0);
       ctx.scale(-1, 1);
       ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
       ctx.restore();
 
-      canvas.toBlob((blob) => {
-        if (!blob) {
-          reject(new Error("Unable to capture image."));
-          return;
-        }
+      canvas.toBlob(
+        (blob) => {
+          if (!blob) {
+            reject(new Error("Unable to capture image."));
+            return;
+          }
 
-        resolve(
-          new File([blob], "realtime-capture.jpg", {
-            type: "image/jpeg",
-          })
-        );
-      }, "image/jpeg", 0.92);
+          resolve(
+            new File([blob], "realtime-frame.jpg", {
+              type: "image/jpeg",
+            })
+          );
+        },
+        "image/jpeg",
+        0.90
+      );
     });
   };
 
-  // Finish scan
-  const finishScan = async () => {
-    if (finishingRef.current) return;
+  // Send frame to INT8 backend
+  const analyzeFrame = async () => {
+    const requestStart = performance.now();
 
-    finishingRef.current = true;
-    clearInterval(timerRef.current);
+    const file = await captureFrame();
 
-    setScanning(false);
+    const formData = new FormData();
+    formData.append("file", file);
 
-    try {
-      const file = await captureFrame();
+    const response = await fetch(`${API_URL}/predict`, {
+      method: "POST",
+      body: formData,
+    });
 
-      streamRef.current?.getTracks().forEach((track) => {
-        track.stop();
-      });
+    if (!response.ok) {
+      throw new Error(`Prediction failed: ${response.status}`);
+    }
 
-      streamRef.current = null;
+    const data = await response.json();
 
-      navigate("/analysis", {
-        state: {
-          file,
-          source: "realtime",
-        },
-      });
+    const latency = performance.now() - requestStart;
+    const detections = data.detections || [];
 
-    } catch (err) {
-      console.error(err);
-      setError("Unable to capture image. Please try again.");
-      finishingRef.current = false;
-      setScanning(false);
+    // Count detections by class in this frame
+    const grouped = detections.reduce((acc, item) => {
+      const disease = item.class;
+      acc[disease] = (acc[disease] || 0) + 1;
+      return acc;
+    }, {});
+
+    const summary = Object.entries(grouped).map(
+      ([diseaseName, count]) => ({
+        diseaseName,
+        count,
+      })
+    );
+
+    // Update live bounding boxes
+    drawDetections(detections);
+
+    // Calculate actual AI processing rate over recent 1 second
+    const completedAt = performance.now();
+
+    fpsTimestampsRef.current = [
+      ...fpsTimestampsRef.current.filter(
+        (time) => completedAt - time < 1000
+      ),
+      completedAt,
+    ];
+
+    const currentFPS = fpsTimestampsRef.current.length;
+
+    scanResultsRef.current.framesProcessed += 1;
+
+    setMetrics({
+  fps: currentFPS,
+  latency: latency.toFixed(1),
+  inferenceLatency: Number(
+    data.performance?.inference_ms ?? 0
+  ).toFixed(1),
+  frames: scanResultsRef.current.framesProcessed,
+});
+
+    // Save the frame with the most detections
+    if (detections.length > scanResultsRef.current.bestScore) {
+      scanResultsRef.current.bestScore = detections.length;
+      scanResultsRef.current.summary = summary;
+      scanResultsRef.current.resultImage = data.result_image;
     }
   };
 
-  // Start 30-second scan
+  // Finish scan
+  const finishScan = () => {
+    if (finishingRef.current) return;
+
+    finishingRef.current = true;
+    scanActiveRef.current = false;
+
+    clearInterval(timerRef.current);
+    timerRef.current = null;
+
+    setScanning(false);
+
+    const scan = scanResultsRef.current;
+
+    stopCameraStream();
+
+    setCameraOpen(false);
+    setCameraReady(false);
+
+    if (scan.framesProcessed === 0 || !scan.resultImage) {
+      setError("No frames were successfully analyzed. Please try again.");
+      finishingRef.current = false;
+      return;
+    }
+
+    navigate("/realtime-analysis", {
+      state: {
+        source: "realtime",
+        summary: scan.summary,
+        resultImage: scan.resultImage,
+        framesProcessed: scan.framesProcessed,
+      },
+    });
+  };
+
+  // Process frames sequentially
+  const runScan = async (endTime) => {
+    while (
+      scanActiveRef.current &&
+      Date.now() < endTime
+    ) {
+      try {
+        await analyzeFrame();
+      } catch (err) {
+        console.error("Frame detection failed:", err);
+      }
+
+      if (!scanActiveRef.current) return;
+
+      const delay = Math.min(
+        FRAME_INTERVAL,
+        Math.max(0, endTime - Date.now())
+      );
+
+      await new Promise((resolve) => {
+        setTimeout(resolve, delay);
+      });
+    }
+
+    if (scanActiveRef.current) {
+      finishScan();
+    }
+  };
+
+  // Start scanning
   const startScan = () => {
     if (!cameraReady || scanning) return;
 
     clearInterval(timerRef.current);
+
     finishingRef.current = false;
+    scanActiveRef.current = true;
+
+    scanResultsRef.current = {
+      framesProcessed: 0,
+      bestScore: -1,
+      summary: [],
+      resultImage: null,
+    };
+
+    fpsTimestampsRef.current = [];
+
+    setMetrics({
+      fps: 0,
+      latency: 0,
+      frames: 0,
+      inferenceLatency: 0,
+    });
 
     setError("");
     setRemaining(SCAN_DURATION);
@@ -226,29 +571,26 @@ function RealTimeDetection() {
       setRemaining(seconds);
 
       if (seconds === 0) {
-        finishScan();
+        clearInterval(timerRef.current);
       }
-    }, 200);
+    }, 100);
+
+    runScan(endTime);
   };
 
-  const stopScan = () => {
-    clearInterval(timerRef.current);
-    timerRef.current = null;
+  // Automatically start after camera is ready
+  useEffect(() => {
+    if (cameraReady) {
+      startScan();
+    }
+  }, [cameraReady]);
 
-    setScanning(false);
-    setRemaining(SCAN_DURATION);
-    finishingRef.current = false;
-  };
-
-  const progress =
-    ((SCAN_DURATION - remaining) / SCAN_DURATION) * 100;
+  const progress = ((SCAN_DURATION - remaining) / SCAN_DURATION) * 100;
 
   return (
     <section className="realtime-section" id="realtime">
 
       <div className="realtime-container">
-
-        {/* HEADER */}
 
         <div className="realtime-header">
           <span>AI-POWERED SKIN ANALYSIS</span>
@@ -261,12 +603,9 @@ function RealTimeDetection() {
           </p>
         </div>
 
-        {/* SIMPLE INFORMATION */}
-
         <div className="realtime-content">
 
           <div className="scan-statistics">
-
             <div className="stat-item">
               <strong>30s</strong>
               <span>Scan Duration</span>
@@ -278,7 +617,6 @@ function RealTimeDetection() {
               <strong>05</strong>
               <span>Skin Conditions</span>
             </div>
-
           </div>
 
           <div className="skin-conditions">
@@ -323,37 +661,93 @@ function RealTimeDetection() {
           </p>
 
         </div>
-
       </div>
 
-{/* FULLSCREEN WEBCAM ONLY */}
+      {/* FULLSCREEN WEBCAM WITH AI OVERLAY */}
 
-{cameraOpen && (
-  <div className="webcam-fullscreen">
+      {cameraOpen && (
+        <div className="webcam-fullscreen">
 
-    <video
-      ref={videoRef}
-      className="webcam-video"
-      autoPlay
-      muted
-      playsInline
-    />
+          <video
+            ref={videoRef}
+            className="webcam-video"
+            autoPlay
+            muted
+            playsInline
+          />
 
-    {/* Minimal close control */}
-    <button
-      className="webcam-close-minimal"
-      onClick={closeCamera}
-      aria-label="Close camera"
-      title="Close camera"
-    >
-      ×
-    </button>
+          {/* AI Bounding Boxes */}
+          <canvas
+            ref={overlayCanvasRef}
+            className="webcam-overlay-canvas"
+          />
 
-  </div>
-)}
+          {/* Countdown: Top Right */}
+          <div className="webcam-countdown">
+            <span>SCAN TIME</span>
+            <strong>
+              00:{String(remaining).padStart(2, "0")}
+            </strong>
+            <div className="webcam-countdown-track">
+              <div
+                className="webcam-countdown-progress"
+                style={{ width: `${progress}%` }}
+              />
+            </div>
+          </div>
 
-<canvas ref={canvasRef} hidden />
+            {/* Performance Metrics */}
 
+
+
+          <div className="webcam-performance">
+
+            <div className="webcam-live-label">
+              <span className="webcam-live-dot" />
+              LIVE AI DETECTION
+            </div>
+
+            <div className="webcam-metric">
+             <span>CAMERA FPS</span>
+             <strong>{cameraFps}</strong>
+            </div>
+
+        
+            <div className="webcam-metric">
+              <span>AI FPS</span>
+              <strong>{metrics.fps}</strong>
+            </div>
+
+            <div className="webcam-metric">
+              <span>API LATENCY</span>
+              <div className="webcam-metric">
+                <span>AI INFERENCE</span>
+                <strong>{metrics.inferenceLatency} ms</strong>
+              </div>
+              <strong>{metrics.latency} ms</strong>
+            </div>
+
+            <div className="webcam-metric">
+              <span>FRAMES ANALYZED</span>
+              <strong>{metrics.frames}</strong>
+            </div>
+
+          </div>
+
+          {/* Close Camera */}
+          <button
+            className="webcam-close-minimal"
+            onClick={closeCamera}
+            aria-label="Close camera"
+            title="Close camera"
+          >
+            ×
+          </button>
+
+        </div>
+      )}
+
+      <canvas ref={canvasRef} hidden />
 
     </section>
   );

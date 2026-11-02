@@ -1,0 +1,336 @@
+
+.realtime-analysis-page {
+  width: 100%;
+  min-height: 80vh;
+  padding: 55px 24px 70px;
+  background: #f8faf9;
+  font-family: "Plus Jakarta Sans", sans-serif;
+  color: #172b24;
+}
+
+.realtime-analysis-container {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+/* HEADER */
+
+.realtime-analysis-header {
+  text-align: center;
+  margin-bottom: 38px;
+}
+
+.realtime-analysis-header > span {
+  display: inline-block;
+  margin-bottom: 12px;
+  color: #19845b;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+}
+
+.realtime-analysis-header h1 {
+  margin: 0;
+  font-size: 34px;
+  font-weight: 700;
+  letter-spacing: -1px;
+}
+
+.realtime-analysis-header p {
+  margin-top: 12px;
+  color: #718078;
+  font-size: 14px;
+  line-height: 1.7;
+}
+
+/* SUMMARY */
+
+.realtime-summary {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 18px;
+  margin-bottom: 32px;
+}
+
+.realtime-summary-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 115px;
+  padding: 20px;
+  background: #ffffff;
+  border: 1px solid #e7eee9;
+  border-radius: 14px;
+}
+
+.realtime-summary-card strong {
+  color: #176b49;
+  font-size: 30px;
+  font-weight: 700;
+}
+
+.realtime-summary-card span {
+  color: #7b8981;
+  font-size: 13px;
+  font-weight: 500;
+}
+
+/* RESULT LAYOUT */
+
+.realtime-result-layout {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  align-items: start;
+  gap: 25px;
+}
+
+/* LEFT IMAGE */
+
+.realtime-result-image-card {
+  padding: 22px;
+  background: #ffffff;
+  border: 1px solid #e7eee9;
+  border-radius: 16px;
+}
+
+.realtime-result-image-card h3 {
+  margin: 0 0 20px;
+  font-size: 17px;
+  font-weight: 700;
+}
+
+.realtime-result-image {
+  display: block;
+  width: 100%;
+  max-height: 620px;
+  object-fit: contain;
+  background: #f3f6f4;
+  border-radius: 10px;
+}
+
+.realtime-no-image {
+  min-height: 300px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #f3f6f4;
+  border-radius: 10px;
+  color: #8a9690;
+  font-size: 14px;
+}
+
+.realtime-download-button {
+  width: 100%;
+  margin-top: 18px;
+  padding: 13px 18px;
+  border: none;
+  border-radius: 9px;
+  background: #176b49;
+  color: #ffffff;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.realtime-download-button:hover {
+  background: #105638;
+}
+
+/* RIGHT REPORT */
+
+.realtime-report-card {
+  padding: 24px;
+  background: #ffffff;
+  border: 1px solid #e7eee9;
+  border-radius: 16px;
+}
+
+.realtime-report-title {
+  margin: 0 0 25px;
+  padding-bottom: 17px;
+  border-bottom: 1px solid #edf1ee;
+  font-size: 20px;
+  font-weight: 700;
+}
+
+.realtime-disease-block {
+  padding: 0 0 25px;
+  margin-bottom: 25px;
+  border-bottom: 1px solid #edf1ee;
+}
+
+.realtime-disease-block:last-child {
+  margin-bottom: 0;
+  padding-bottom: 0;
+  border-bottom: none;
+}
+
+.realtime-disease-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 17px;
+}
+
+.realtime-disease-header h2 {
+  margin: 0;
+  font-size: 21px;
+  font-weight: 700;
+}
+
+.realtime-severity {
+  display: inline-block;
+  padding: 6px 12px;
+  border-radius: 20px;
+  background: #edf5ef;
+  color: #27744e;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.realtime-severity.moderate,
+.realtime-severity.extensive {
+  background: #fff5e5;
+  color: #a66b17;
+}
+
+.realtime-severity.severe {
+  background: #fff0ee;
+  color: #c14b3e;
+}
+
+.realtime-disease-count {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 14px;
+  margin-bottom: 20px;
+  background: #f6f9f7;
+  border-radius: 9px;
+  font-size: 13px;
+}
+
+.realtime-disease-count strong {
+  color: #68776e;
+  font-weight: 600;
+}
+
+.realtime-disease-count span {
+  color: #176b49;
+  font-weight: 700;
+}
+
+.realtime-disease-block h4 {
+  margin: 20px 0 12px;
+  color: #293c32;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.realtime-list-item {
+  margin: 9px 0;
+  color: #6b7971;
+  font-size: 13px;
+  line-height: 1.7;
+}
+
+.realtime-no-disease {
+  padding: 25px 10px;
+  text-align: center;
+}
+
+.realtime-no-disease h3 {
+  color: #176b49;
+  font-size: 18px;
+}
+
+.realtime-no-disease p {
+  color: #7b8981;
+  font-size: 13px;
+  line-height: 1.7;
+}
+
+/* ACTION BUTTON */
+
+.realtime-report-actions {
+  display: flex;
+  justify-content: center;
+  margin-top: 30px;
+}
+
+.realtime-report-actions button {
+  padding: 13px 30px;
+  border: none;
+  border-radius: 9px;
+  background: #176b49;
+  color: #ffffff;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.realtime-report-actions button:hover {
+  background: #105638;
+}
+
+.realtime-disclaimer {
+  max-width: 700px;
+  margin: 25px auto 0;
+  color: #929d96;
+  font-size: 11px;
+  line-height: 1.8;
+  text-align: center;
+}
+
+/* RESPONSIVE */
+
+@media (max-width: 850px) {
+  .realtime-result-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .realtime-analysis-header h1 {
+    font-size: 28px;
+  }
+}
+
+@media (max-width: 550px) {
+  .realtime-analysis-page {
+    padding: 35px 15px 50px;
+  }
+
+  .realtime-summary {
+    gap: 9px;
+  }
+
+  .realtime-summary-card {
+    min-height: 95px;
+    padding: 12px 6px;
+  }
+
+  .realtime-summary-card strong {
+    font-size: 24px;
+  }
+
+  .realtime-summary-card span {
+    font-size: 10px;
+    text-align: center;
+  }
+
+  .realtime-report-card,
+  .realtime-result-image-card {
+    padding: 17px;
+  }
+
+  .realtime-analysis-header h1 {
+    font-size: 25px;
+  }
+}

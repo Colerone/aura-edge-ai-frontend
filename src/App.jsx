@@ -5,7 +5,9 @@ import DetectionSection from './components/DetectionSelection';
 import RealTimeDetection from './components/RealTimeDetection';
 import DetectionComparison from './components/DetectionComparison';
 import Footer from './components/Footer';
+
 import AnalysisPage from './pages/AnalysisPage';
+import RealTimeAnalysisPage from './pages/RealTimeAnalysisPage';
 
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 
@@ -15,10 +17,10 @@ function HomePage() {
       <Navbar />
       <Hero />
 
-      {/* Existing image upload section */}
+      {/* Image Upload Section */}
       <DetectionSection />
 
-      {/* New real-time camera section */}
+      {/* Real-Time Camera Section */}
       <RealTimeDetection />
 
       <DetectionComparison />
@@ -39,7 +41,15 @@ function App() {
         <div style={{ flex: 1 }}>
           <Routes>
             <Route path="/" element={<HomePage />} />
+
+            {/* Image Upload Results */}
             <Route path="/analysis" element={<AnalysisPage />} />
+
+            {/* Real-Time Detection Results */}
+            <Route
+              path="/realtime-analysis"
+              element={<RealTimeAnalysisPage />}
+            />
           </Routes>
         </div>
 
