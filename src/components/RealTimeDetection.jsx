@@ -700,39 +700,39 @@ useEffect(() => {
 
 
 
-          <div className="webcam-performance">
+        <div className="webcam-performance">
 
-            <div className="webcam-live-label">
-              <span className="webcam-live-dot" />
-              LIVE AI DETECTION
-            </div>
+  <div className="webcam-live-label">
+    <span className="webcam-live-dot" />
+    LIVE AI DETECTION
+  </div>
 
-            <div className="webcam-metric">
-             <span>CAMERA FPS</span>
-             <strong>{cameraFps}</strong>
-            </div>
+  <div className="webcam-metric">
+    <span>CAMERA FPS</span>
+    <strong>{cameraFps}</strong>
+  </div>
 
-        
-            <div className="webcam-metric">
-              <span>AI FPS</span>
-              <strong>{metrics.fps}</strong>
-            </div>
+  <div className="webcam-metric">
+    <span>AI FPS</span>
+    <strong>{metrics.fps}</strong>
+  </div>
 
-            <div className="webcam-metric">
-              <span>API LATENCY</span>
-              <div className="webcam-metric">
-                <span>AI INFERENCE</span>
-                <strong>{metrics.inferenceLatency} ms</strong>
-              </div>
-              <strong>{metrics.latency} ms</strong>
-            </div>
+  <div className="webcam-metric">
+    <span>API LATENCY</span>
+    <strong>{metrics.latency} ms</strong>
+  </div>
 
-            <div className="webcam-metric">
-              <span>FRAMES ANALYZED</span>
-              <strong>{metrics.frames}</strong>
-            </div>
+  <div className="webcam-metric">
+    <span>AI INFERENCE</span>
+    <strong>{metrics.inferenceLatency} ms</strong>
+  </div>
 
-          </div>
+  <div className="webcam-metric">
+    <span>FRAMES ANALYZED</span>
+    <strong>{metrics.frames}</strong>
+  </div>
+
+</div>
 
           {/* Close Camera */}
           <button
