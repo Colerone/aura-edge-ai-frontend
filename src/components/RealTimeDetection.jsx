@@ -732,7 +732,7 @@ useEffect(() => {
     <strong>{metrics.frames}</strong>
   </div>
 
-</div>
+</div>  
 
           {/* Close Camera */}
           <button
