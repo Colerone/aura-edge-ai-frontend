@@ -5,7 +5,7 @@ import "./RealTimeDetection.css";
 
 const SCAN_DURATION = 30;
 const FRAME_INTERVAL = 200;
-const API_URL = "http://127.0.0.1:8000";
+const API_URL = "http://127.0.0.1:8001";
 
 function RealTimeDetection() {
   const navigate = useNavigate();
@@ -396,6 +396,67 @@ useEffect(() => {
     });
   };
 
+
+  // Create final annotated image in browser memory
+  const createAnnotatedImage = async (file, detections) => {
+  const bitmap = await createImageBitmap(file);
+
+  const canvas = document.createElement("canvas");
+
+  canvas.width = bitmap.width;
+  canvas.height = bitmap.height;
+
+  const ctx = canvas.getContext("2d");
+
+  if (!ctx) {
+    bitmap.close();
+    throw new Error("Unable to create result image.");
+  }
+
+  // Draw captured webcam frame
+  ctx.drawImage(bitmap, 0, 0);
+
+  const scale = bitmap.width / 640;
+
+  ctx.lineWidth = Math.max(2, 2 * scale);
+  ctx.font = `bold ${Math.max(14, 13 * scale)}px Arial`;
+
+  detections.forEach((item) => {
+    if (!item.box) return;
+
+    const { x1, y1, x2, y2 } = item.box;
+
+    const width = x2 - x1;
+    const height = y2 - y1;
+
+    const label = `${item.class} ${(
+      item.confidence * 100
+    ).toFixed(0)}%`;
+
+    ctx.strokeStyle = "#39D98A";
+    ctx.strokeRect(x1, y1, width, height);
+
+    const labelWidth = ctx.measureText(label).width + 14;
+    const labelHeight = 24 * scale;
+    const labelY = Math.max(0, y1 - labelHeight);
+
+    ctx.fillStyle = "#176B49";
+    ctx.fillRect(x1, labelY, labelWidth, labelHeight);
+
+    ctx.fillStyle = "#FFFFFF";
+    ctx.fillText(
+      label,
+      x1 + 7 * scale,
+      labelY + 17 * scale
+    );
+  });
+
+  bitmap.close();
+
+  return canvas.toDataURL("image/jpeg", 0.9);
+};
+
+
   // Send frame to INT8 backend
   const analyzeFrame = async () => {
     const requestStart = performance.now();
@@ -405,9 +466,9 @@ useEffect(() => {
     const formData = new FormData();
     formData.append("file", file);
 
-    const response = await fetch(`${API_URL}/predict`, {
-      method: "POST",
-      body: formData,
+    const response = await fetch(`${API_URL}/realtime/predict`, {
+    method: "POST",
+    body: formData,
     });
 
     if (!response.ok) {
@@ -459,13 +520,19 @@ useEffect(() => {
   frames: scanResultsRef.current.framesProcessed,
 });
 
-    // Save the frame with the most detections
-    if (detections.length > scanResultsRef.current.bestScore) {
-      scanResultsRef.current.bestScore = detections.length;
-      scanResultsRef.current.summary = summary;
-      scanResultsRef.current.resultImage = data.result_image;
-    }
-  };
+   // Save the frame with the most detections
+  if (detections.length > scanResultsRef.current.bestScore) {
+
+  const annotatedImage = await createAnnotatedImage(
+    file,
+    detections
+  );
+
+  scanResultsRef.current.bestScore = detections.length;
+  scanResultsRef.current.summary = summary;
+  scanResultsRef.current.resultImage = annotatedImage;
+  }
+    };
 
   // Finish scan
   const finishScan = () => {

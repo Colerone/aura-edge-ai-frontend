@@ -51,6 +51,7 @@ function getRecommendation(disease, count) {
         ],
       };
 
+    case "Freckle":
     case "Freckles":
       return count <= 10
         ? {
@@ -119,19 +120,29 @@ function getRecommendation(disease, count) {
         ],
       };
 
-    default:
-      return {
-        severity: "Normal",
-        ingredients: [
-          "Gentle Cleanser",
-          "Moisturizer",
-          "Sunscreen",
-        ],
-        treatment: [
-          "Maintain a basic skincare routine daily.",
-        ],
-      };
-  }
+  //   default:
+  //     return {
+  //       severity: "Normal",
+  //       ingredients: [
+  //         "Gentle Cleanser",
+  //         "Moisturizer",
+  //         "Sunscreen",
+  //       ],
+  //       treatment: [
+  //         "Maintain a basic skincare routine daily.",
+  //       ],
+  //     };
+  // }
+
+        default:
+          return {
+            severity: "Detected",
+            ingredients: [],
+            treatment: [
+              "Recommendation is not configured for this condition yet.",
+            ],
+          };
+        }
 }
 
 function RealTimeAnalysisPage() {
@@ -158,11 +169,7 @@ function RealTimeAnalysisPage() {
     return null;
   }
 
-  const imageUrl = resultImage
-    ? resultImage.startsWith("http")
-      ? resultImage
-      : `${API_URL}${resultImage}`
-    : null;
+  const imageUrl = resultImage || null;
 
   const detectedDiseases = summary.map((item) => ({
     ...item,
