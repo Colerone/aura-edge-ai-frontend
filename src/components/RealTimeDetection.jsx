@@ -8,24 +8,30 @@ import "./RealTimeDetection.css";
 // ========================================
 
 const SCAN_DURATION = 30;
-
-// No additional waiting between successful requests.
-// Requests remain sequential (one request at a time).
 const FRAME_INTERVAL = 0;
 
-// Camera configuration
 const CAMERA_WIDTH = 1280;
 const CAMERA_HEIGHT = 720;
-const CAMERA_FPS = 60;
+const CAMERA_FPS = 30;
 
-// Maximum image width sent to the AI backend
-const MAX_AI_FRAME_WIDTH = 1280;
-
-// JPEG compression quality
+const MAX_AI_FRAME_WIDTH = 640;
 const JPEG_QUALITY = 0.80;
 
-// API
 const API_URL = "http://127.0.0.1:8001";
+
+
+// ========================================
+// INITIAL SCAN RESULTS
+// ========================================
+
+const createEmptyScanResults = () => ({
+  framesProcessed: 0,
+  bestScore: -1,
+  summary: [],
+  resultImage: null,
+  bestFrame: null,
+  bestDetections: [],
+});
 
 
 // ========================================
@@ -36,30 +42,29 @@ function RealTimeDetection() {
 
   const navigate = useNavigate();
 
-  // DOM references
+  // DOM References
   const videoRef = useRef(null);
   const canvasRef = useRef(null);
   const overlayCanvasRef = useRef(null);
-
-  // Camera and timer references
+  const liveTracksRef = useRef([]);
+  // Camera References
   const streamRef = useRef(null);
+
+  // Timer Reference
   const timerRef = useRef(null);
 
-  // Control references
-  const finishingRef = useRef(false);
+  // Control References
   const scanActiveRef = useRef(false);
+  const finishingRef = useRef(false);
   const openingCameraRef = useRef(false);
 
-  // FPS timestamps
-  const fpsTimestampsRef = useRef([]);
+  // Average FPS Timer
+  const scanStartedAtRef = useRef(0);
 
-  // Scan result storage
-  const scanResultsRef = useRef({
-    framesProcessed: 0,
-    bestScore: -1,
-    summary: [],
-    resultImage: null,
-  });
+  // Scan Results
+  const scanResultsRef = useRef(
+    createEmptyScanResults()
+  );
 
 
   // ========================================
@@ -68,11 +73,14 @@ function RealTimeDetection() {
 
   const [cameraOpen, setCameraOpen] = useState(false);
   const [cameraReady, setCameraReady] = useState(false);
+  const [cameraOpening, setCameraOpening] = useState(false);
   const [scanning, setScanning] = useState(false);
 
   const [cameraFps, setCameraFps] = useState(0);
 
-  const [remaining, setRemaining] = useState(SCAN_DURATION);
+  const [remaining, setRemaining] = useState(
+    SCAN_DURATION
+  );
 
   const [error, setError] = useState("");
 
@@ -82,6 +90,85 @@ function RealTimeDetection() {
     inferenceLatency: 0,
     frames: 0,
   });
+
+
+  // ========================================
+  // CAMERA ERROR MESSAGES
+  // ========================================
+
+  const getCameraErrorMessage = (err) => {
+
+    console.error("Camera Error Details:", {
+      name: err.name,
+      message: err.message,
+      constraint: err.constraint,
+    });
+
+    switch (err.name) {
+
+      case "NotAllowedError":
+        return "Camera permission denied. Please allow camera access.";
+
+      case "NotFoundError":
+        return "No camera device was found.";
+
+      case "NotReadableError":
+        return "Camera is already being used by another application.";
+
+      case "OverconstrainedError":
+        return `Camera does not support the requested settings: ${err.constraint || "unknown constraint"}.`;
+
+      case "AbortError":
+        return "Camera initialization was interrupted. Please try again.";
+
+      case "SecurityError":
+        return "Camera access is blocked by browser security settings.";
+
+      case "TypeError":
+        return "Invalid camera configuration or camera API unavailable.";
+
+      default:
+        return `Unable to access camera (${err.name || "Unknown error"}): ${err.message || "Please check your camera."}`;
+
+    }
+
+  };
+
+
+  // ========================================
+  // STOP CAMERA STREAM
+  // ========================================
+
+  const stopCameraStream = () => {
+
+    const stream = streamRef.current;
+
+    if (stream) {
+
+      stream.getTracks().forEach((track) => {
+
+        try {
+          track.stop();
+        } catch (err) {
+          console.warn("Camera track stop error:", err);
+        }
+
+      });
+
+    }
+
+    streamRef.current = null;
+
+    const video = videoRef.current;
+
+    if (video) {
+
+      video.pause();
+      video.srcObject = null;
+
+    }
+
+  };
 
 
   // ========================================
@@ -106,16 +193,24 @@ function RealTimeDetection() {
 
       if (
         !cancelled &&
-        video.readyState >= 2
+        video.readyState >= 2 &&
+        video.videoWidth > 0 &&
+        video.videoHeight > 0
       ) {
+
         setCameraReady(true);
+
       }
 
     };
 
-    // Wait until an actual video frame is available
     video.addEventListener(
       "loadeddata",
+      markCameraReady
+    );
+
+    video.addEventListener(
+      "canplay",
       markCameraReady
     );
 
@@ -123,19 +218,20 @@ function RealTimeDetection() {
 
     video.play()
       .then(() => {
+
         markCameraReady();
+
       })
       .catch((err) => {
 
-        console.error(
-          "Camera playback error:",
-          err
-        );
+        console.error("Camera playback error:", err);
 
         if (!cancelled) {
+
           setError(
-            "Unable to start camera preview."
+            "Unable to start camera preview: " + err.message
           );
+
         }
 
       });
@@ -146,6 +242,11 @@ function RealTimeDetection() {
 
       video.removeEventListener(
         "loadeddata",
+        markCameraReady
+      );
+
+      video.removeEventListener(
+        "canplay",
         markCameraReady
       );
 
@@ -175,7 +276,6 @@ function RealTimeDetection() {
 
     const timestamps = [];
 
-    // Modern browser API
     if (
       typeof video.requestVideoFrameCallback === "function"
     ) {
@@ -190,10 +290,12 @@ function RealTimeDetection() {
           timestamps.length > 2 &&
           now - timestamps[0] > 1000
         ) {
+
           timestamps.shift();
+
         }
 
-        // Update React state only every 500ms
+        // Update UI every 500ms
         if (
           timestamps.length >= 2 &&
           now - lastUIUpdate >= 500
@@ -219,23 +321,20 @@ function RealTimeDetection() {
         }
 
         callbackId =
-          video.requestVideoFrameCallback(
-            measureFPS
-          );
+          video.requestVideoFrameCallback(measureFPS);
 
       };
 
       callbackId =
-        video.requestVideoFrameCallback(
-          measureFPS
-        );
+        video.requestVideoFrameCallback(measureFPS);
 
     } else {
 
-      // Fallback
+      // Fallback for older browsers
       let lastTime = -1;
 
       let startTime = performance.now();
+
       let frameCount = 0;
 
       const measureFallback = () => {
@@ -261,16 +360,12 @@ function RealTimeDetection() {
         }
 
         rafId =
-          requestAnimationFrame(
-            measureFallback
-          );
+          requestAnimationFrame(measureFallback);
 
       };
 
       rafId =
-        requestAnimationFrame(
-          measureFallback
-        );
+        requestAnimationFrame(measureFallback);
 
     }
 
@@ -283,9 +378,7 @@ function RealTimeDetection() {
         video.cancelVideoFrameCallback
       ) {
 
-        video.cancelVideoFrameCallback(
-          callbackId
-        );
+        video.cancelVideoFrameCallback(callbackId);
 
       }
 
@@ -312,11 +405,7 @@ function RealTimeDetection() {
 
       clearInterval(timerRef.current);
 
-      streamRef.current
-        ?.getTracks()
-        .forEach((track) => track.stop());
-
-      streamRef.current = null;
+      stopCameraStream();
 
     };
 
@@ -324,7 +413,7 @@ function RealTimeDetection() {
 
 
   // ========================================
-  // ESCAPE TO CLOSE CAMERA
+  // ESCAPE KEY
   // ========================================
 
   useEffect(() => {
@@ -334,7 +423,9 @@ function RealTimeDetection() {
     const handleEscape = (e) => {
 
       if (e.key === "Escape") {
+
         closeCamera();
+
       }
 
     };
@@ -356,6 +447,224 @@ function RealTimeDetection() {
   }, [cameraOpen]);
 
 
+
+// ========================================
+// BOUNDING BOX IOU
+// ========================================
+
+const calculateIoU = (a, b) => {
+
+  const x1 = Math.max(a.x1, b.x1);
+  const y1 = Math.max(a.y1, b.y1);
+
+  const x2 = Math.min(a.x2, b.x2);
+  const y2 = Math.min(a.y2, b.y2);
+
+  const intersectionWidth = Math.max(0, x2 - x1);
+  const intersectionHeight = Math.max(0, y2 - y1);
+
+  const intersection =
+    intersectionWidth * intersectionHeight;
+
+  const areaA =
+    Math.max(0, a.x2 - a.x1) *
+    Math.max(0, a.y2 - a.y1);
+
+  const areaB =
+    Math.max(0, b.x2 - b.x1) *
+    Math.max(0, b.y2 - b.y1);
+
+  const union = areaA + areaB - intersection;
+
+  return union > 0 ? intersection / union : 0;
+
+};
+
+
+// ========================================
+// TEMPORAL DETECTION STABILIZATION
+// ========================================
+
+const stabilizeLiveDetections = (detections) => {
+
+  const now = performance.now();
+
+  const previousTracks = liveTracksRef.current;
+
+  const matchedIndices = new Set();
+
+  const nextTracks = [];
+
+  const displayDetections = [];
+
+  const SMOOTHING_FACTOR = 0.65;
+
+  const HOLD_DURATION = 250;
+
+  const MATCH_THRESHOLD = 0.10;
+
+
+  // Match incoming detections with previous boxes
+
+  detections.forEach((item) => {
+
+    if (!item.box) return;
+
+    let bestIndex = -1;
+
+    let bestIoU = 0;
+
+    previousTracks.forEach((track, index) => {
+
+      if (matchedIndices.has(index)) return;
+
+      if (track.class !== item.class) return;
+
+      const iou = calculateIoU(
+        track.box,
+        item.box
+      );
+
+      if (iou > bestIoU) {
+
+        bestIoU = iou;
+
+        bestIndex = index;
+
+      }
+
+    });
+
+
+    // Existing detection track found
+
+    if (
+      bestIndex !== -1 &&
+      bestIoU >= MATCH_THRESHOLD
+    ) {
+
+      matchedIndices.add(bestIndex);
+
+      const previous =
+        previousTracks[bestIndex];
+
+      const alpha = SMOOTHING_FACTOR;
+
+      const smoothBox = {
+
+        x1:
+          previous.box.x1 * (1 - alpha) +
+          item.box.x1 * alpha,
+
+        y1:
+          previous.box.y1 * (1 - alpha) +
+          item.box.y1 * alpha,
+
+        x2:
+          previous.box.x2 * (1 - alpha) +
+          item.box.x2 * alpha,
+
+        y2:
+          previous.box.y2 * (1 - alpha) +
+          item.box.y2 * alpha,
+
+      };
+
+      const track = {
+
+        class: item.class,
+
+        confidence: item.confidence,
+
+        box: smoothBox,
+
+        lastSeen: now,
+
+      };
+
+      nextTracks.push(track);
+
+      displayDetections.push({
+
+        ...item,
+
+        box: smoothBox,
+
+        _opacity: 1,
+
+      });
+
+    } else {
+
+      // New detection
+
+      const track = {
+
+        class: item.class,
+
+        confidence: item.confidence,
+
+        box: { ...item.box },
+
+        lastSeen: now,
+
+      };
+
+      nextTracks.push(track);
+
+      displayDetections.push({
+
+        ...item,
+
+        _opacity: 1,
+
+      });
+
+    }
+
+  });
+
+
+  // Keep temporarily missing detections
+
+  previousTracks.forEach((track, index) => {
+
+    if (matchedIndices.has(index)) return;
+
+    const age = now - track.lastSeen;
+
+    if (age <= HOLD_DURATION) {
+
+      const opacity = Math.max(
+        0.35,
+        1 - (age / HOLD_DURATION) * 0.65
+      );
+
+      nextTracks.push(track);
+
+      displayDetections.push({
+
+        class: track.class,
+
+        confidence: track.confidence,
+
+        box: track.box,
+
+        _opacity: opacity,
+
+      });
+
+    }
+
+  });
+
+
+  liveTracksRef.current = nextTracks;
+
+  return displayDetections;
+
+};
+
   // ========================================
   // DRAW AI BOUNDING BOXES
   // ========================================
@@ -374,7 +683,9 @@ function RealTimeDetection() {
       !video ||
       !canvas ||
       !video.videoWidth ||
-      !video.videoHeight
+      !video.videoHeight ||
+      !sourceWidth ||
+      !sourceHeight
     ) {
       return;
     }
@@ -391,7 +702,6 @@ function RealTimeDetection() {
     const targetWidth = Math.round(width * dpr);
     const targetHeight = Math.round(height * dpr);
 
-    // Avoid unnecessary canvas reallocations
     if (
       canvas.width !== targetWidth ||
       canvas.height !== targetHeight
@@ -415,7 +725,7 @@ function RealTimeDetection() {
       height
     );
 
-    // Match object-fit: contain
+    // Match video object-fit: contain
     const displayScale = Math.min(
       width / video.videoWidth,
       height / video.videoHeight
@@ -433,7 +743,7 @@ function RealTimeDetection() {
     const offsetY =
       (height - renderedHeight) / 2;
 
-    // Convert AI image coordinates to camera coordinates
+    // Scale detection coordinates to original camera size
     const scaleX =
       video.videoWidth / sourceWidth;
 
@@ -443,6 +753,7 @@ function RealTimeDetection() {
     detections.forEach((item) => {
 
       if (!item.box) return;
+      ctx.globalAlpha = item._opacity ?? 1;
 
       const x1 =
         offsetX +
@@ -516,6 +827,8 @@ function RealTimeDetection() {
 
     });
 
+    ctx.globalAlpha = 1;
+
   };
 
 
@@ -534,9 +847,13 @@ function RealTimeDetection() {
 
     openingCameraRef.current = true;
 
+    setCameraOpening(true);
+
     setError("");
 
     setCameraReady(false);
+
+    let acquiredStream = null;
 
     if (
       !navigator.mediaDevices?.getUserMedia
@@ -547,6 +864,7 @@ function RealTimeDetection() {
       );
 
       openingCameraRef.current = false;
+      setCameraOpening(false);
 
       return;
 
@@ -554,57 +872,95 @@ function RealTimeDetection() {
 
     try {
 
-      const stream =
-        await navigator.mediaDevices.getUserMedia({
+      // Release any previous stream first
+      stopCameraStream();
 
-          audio: false,
+      const constraints = {
 
-          video: {
+        audio: false,
 
-            facingMode: {
-              ideal: "user",
-            },
+        video: {
 
-            width: {
-              ideal: CAMERA_WIDTH,
-            },
-
-            height: {
-              ideal: CAMERA_HEIGHT,
-            },
-
-            frameRate: {
-              ideal: CAMERA_FPS,
-              max: CAMERA_FPS,
-            },
-
+          facingMode: {
+            ideal: "user",
           },
 
-        });
+          width: {
+            ideal: CAMERA_WIDTH,
+          },
 
-      streamRef.current = stream;
+          height: {
+            ideal: CAMERA_HEIGHT,
+          },
 
-      const track =
-        stream.getVideoTracks()[0];
+          frameRate: {
+            ideal: CAMERA_FPS,
+            max: CAMERA_FPS,
+          },
 
-      // Check actual hardware camera settings
-      console.log(
-        "Actual Camera Settings:",
-        track.getSettings()
-      );
-
-      // Reset scan results
-      scanResultsRef.current = {
-
-        framesProcessed: 0,
-        bestScore: -1,
-        summary: [],
-        resultImage: null,
+        },
 
       };
 
-      fpsTimestampsRef.current = [];
+      acquiredStream =
+        await navigator.mediaDevices.getUserMedia(
+          constraints
+        );
 
+      // Keep a reference to the new stream
+      streamRef.current = acquiredStream;
+
+      const track =
+        acquiredStream.getVideoTracks()[0];
+
+      if (!track || track.readyState !== "live") {
+
+        throw new Error(
+          "Camera track is not active."
+        );
+
+      }
+
+      // Camera diagnostics must never prevent camera opening
+      try {
+
+        console.log(
+          "Actual Camera Settings:",
+          track.getSettings?.()
+        );
+
+        if (
+          typeof track.getCapabilities === "function"
+        ) {
+
+          const capabilities =
+            track.getCapabilities();
+
+          console.log(
+            "CAMERA SUPPORTED CAPABILITIES:",
+            {
+              frameRate: capabilities.frameRate,
+              width: capabilities.width,
+              height: capabilities.height,
+            }
+          );
+
+        }
+
+      } catch (diagnosticError) {
+
+        console.warn(
+          "Camera diagnostic unavailable:",
+          diagnosticError
+        );
+
+      }
+
+      // Reset scan results
+      scanResultsRef.current =
+        createEmptyScanResults();
+
+      // Reset performance metrics
       setCameraFps(0);
 
       setMetrics({
@@ -624,57 +980,52 @@ function RealTimeDetection() {
 
       setScanning(false);
 
+      // Show fullscreen camera
       setCameraOpen(true);
 
     } catch (err) {
 
       console.error(
-        "Camera access error:",
+        "Camera initialization failed:",
         err
       );
 
-      setError(
-        err.name === "NotAllowedError"
-          ? "Please allow camera permission in your browser."
-          : err.name === "NotFoundError"
-          ? "No camera device was found."
-          : "Unable to access your camera."
-      );
+      // IMPORTANT:
+      // Stop the stream even if an error happens
+      // after getUserMedia succeeds.
+      if (acquiredStream) {
 
-      streamRef.current = null;
+        acquiredStream
+          .getTracks()
+          .forEach((track) => {
+
+            try {
+              track.stop();
+            } catch (stopError) {
+              console.warn(stopError);
+            }
+
+          });
+
+      }
+
+      if (streamRef.current === acquiredStream) {
+        streamRef.current = null;
+      }
+
+      setCameraOpen(false);
+
+      setCameraReady(false);
+
+      setError(
+        getCameraErrorMessage(err)
+      );
 
     } finally {
 
       openingCameraRef.current = false;
 
-    }
-
-  };
-
-
-  // ========================================
-  // STOP CAMERA
-  // ========================================
-
-  const stopCameraStream = () => {
-
-    if (streamRef.current) {
-
-      streamRef.current
-        .getTracks()
-        .forEach((track) => {
-          track.stop();
-        });
-
-    }
-
-    streamRef.current = null;
-
-    if (videoRef.current) {
-
-      videoRef.current.pause();
-
-      videoRef.current.srcObject = null;
+      setCameraOpening(false);
 
     }
 
@@ -688,7 +1039,7 @@ function RealTimeDetection() {
   const closeCamera = () => {
 
     scanActiveRef.current = false;
-
+    liveTracksRef.current = [];
     clearInterval(timerRef.current);
 
     timerRef.current = null;
@@ -715,6 +1066,8 @@ function RealTimeDetection() {
     });
 
     finishingRef.current = false;
+
+    setError("");
 
   };
 
@@ -747,8 +1100,7 @@ function RealTimeDetection() {
 
       }
 
-      // Downscale only the AI frame.
-      // Keep the original camera preview unchanged.
+      // Downscale only the AI image
       const resizeScale = Math.min(
         1,
         MAX_AI_FRAME_WIDTH / video.videoWidth
@@ -763,6 +1115,7 @@ function RealTimeDetection() {
       );
 
       canvas.width = captureWidth;
+
       canvas.height = captureHeight;
 
       const ctx = canvas.getContext("2d", {
@@ -796,7 +1149,7 @@ function RealTimeDetection() {
 
       ctx.restore();
 
-      // Compress JPEG
+      // JPEG compression
       canvas.toBlob(
 
         (blob) => {
@@ -822,7 +1175,9 @@ function RealTimeDetection() {
           resolve({
 
             file,
+
             width: captureWidth,
+
             height: captureHeight,
 
           });
@@ -858,6 +1213,7 @@ function RealTimeDetection() {
         document.createElement("canvas");
 
       canvas.width = bitmap.width;
+
       canvas.height = bitmap.height;
 
       const ctx = canvas.getContext("2d");
@@ -870,7 +1226,7 @@ function RealTimeDetection() {
 
       }
 
-      // Draw captured webcam frame
+      // Original captured image
       ctx.drawImage(
         bitmap,
         0,
@@ -879,7 +1235,7 @@ function RealTimeDetection() {
 
       const scale = Math.max(
         bitmap.width / 640,
-        bitmap.height / 640
+        bitmap.height / 360
       );
 
       ctx.lineWidth = Math.max(
@@ -888,7 +1244,7 @@ function RealTimeDetection() {
       );
 
       ctx.font =
-        `bold ${Math.max(14, 13 * scale)}px Arial`;
+        `bold ${Math.max(13, 13 * scale)}px Arial`;
 
       detections.forEach((item) => {
 
@@ -902,6 +1258,7 @@ function RealTimeDetection() {
         } = item.box;
 
         const width = x2 - x1;
+
         const height = y2 - y1;
 
         if (
@@ -978,7 +1335,7 @@ function RealTimeDetection() {
 
     const requestStart = performance.now();
 
-    // Capture image
+    // Capture camera frame
     const captured = await captureFrame();
 
     const {
@@ -994,7 +1351,7 @@ function RealTimeDetection() {
       file
     );
 
-    // Prevent indefinitely hanging requests
+    // Request timeout
     const controller = new AbortController();
 
     const timeoutId = setTimeout(
@@ -1011,13 +1368,9 @@ function RealTimeDetection() {
       response = await fetch(
         `${API_URL}/realtime/predict`,
         {
-
           method: "POST",
-
           body: formData,
-
           signal: controller.signal,
-
         }
       );
 
@@ -1029,11 +1382,10 @@ function RealTimeDetection() {
 
           const errorData = await response.json();
 
-          detail =
-            errorData.detail || "";
+          detail = errorData.detail || "";
 
         } catch {
-          // Response may not be JSON
+          // Non-JSON error response
         }
 
         throw new Error(
@@ -1050,12 +1402,12 @@ function RealTimeDetection() {
 
     }
 
-    // Stop processing if the camera was closed
+    // Ignore late results after camera closes
     if (!scanActiveRef.current) {
       return;
     }
 
-    // Total capture + upload + server + response time
+    // Total browser request time
     const latency =
       performance.now() - requestStart;
 
@@ -1064,7 +1416,7 @@ function RealTimeDetection() {
         ? data.detections
         : [];
 
-    // Group detections by disease
+    // Group detections
     const grouped = detections.reduce(
       (acc, item) => {
 
@@ -1082,34 +1434,30 @@ function RealTimeDetection() {
     const summary =
       Object.entries(grouped).map(
         ([diseaseName, count]) => ({
-
           diseaseName,
           count,
-
         })
       );
 
-    // Update bounding boxes
-    drawDetections(
-      detections,
-      width,
-      height
-    );
+    // Draw live bounding boxes
+   const stableDetections =
+  stabilizeLiveDetections(detections);
 
-    // Update analyzed frame count
+drawDetections(
+  stableDetections,
+  width,
+  height
+);
+
+    // Count successful frames
     scanResultsRef.current.framesProcessed += 1;
 
-    // Save frame with the most detections
+    // Keep only the best detection frame
+    // Avoid repeatedly creating annotated images
     if (
       detections.length >
       scanResultsRef.current.bestScore
     ) {
-
-      const annotatedImage =
-        await createAnnotatedImage(
-          file,
-          detections
-        );
 
       scanResultsRef.current.bestScore =
         detections.length;
@@ -1117,8 +1465,16 @@ function RealTimeDetection() {
       scanResultsRef.current.summary =
         summary;
 
-      scanResultsRef.current.resultImage =
-        annotatedImage;
+      scanResultsRef.current.bestFrame =
+        file;
+
+      scanResultsRef.current.bestDetections =
+        detections.map((item) => ({
+          ...item,
+          box: item.box
+            ? { ...item.box }
+            : null,
+        }));
 
     }
 
@@ -1126,22 +1482,22 @@ function RealTimeDetection() {
       return;
     }
 
-    // Measure completed AI processing FPS
+    // Average AI FPS since scan started
     const completedAt = performance.now();
 
-    fpsTimestampsRef.current =
-      fpsTimestampsRef.current.filter(
-        (time) => completedAt - time < 1000
-      );
-
-    fpsTimestampsRef.current.push(
-      completedAt
+    const elapsedSeconds = Math.max(
+      (completedAt - scanStartedAtRef.current) / 1000,
+      0.001
     );
 
-    const currentFPS =
-      fpsTimestampsRef.current.length;
+    const currentFPS = Number(
+      (
+        scanResultsRef.current.framesProcessed /
+        elapsedSeconds
+      ).toFixed(1)
+    );
 
-    // Update performance metrics
+    // Update metrics
     setMetrics({
 
       fps: currentFPS,
@@ -1166,7 +1522,7 @@ function RealTimeDetection() {
   // FINISH SCAN
   // ========================================
 
-  const finishScan = () => {
+  const finishScan = async () => {
 
     if (finishingRef.current) return;
 
@@ -1182,6 +1538,7 @@ function RealTimeDetection() {
 
     const scan = scanResultsRef.current;
 
+    // Stop camera before creating final image
     stopCameraStream();
 
     setCameraOpen(false);
@@ -1190,7 +1547,7 @@ function RealTimeDetection() {
 
     if (
       scan.framesProcessed === 0 ||
-      !scan.resultImage
+      !scan.bestFrame
     ) {
 
       setError(
@@ -1203,24 +1560,44 @@ function RealTimeDetection() {
 
     }
 
-    navigate(
-      "/realtime-analysis",
-      {
+    try {
 
-        state: {
+      // Create final annotated image once
+      const resultImage =
+        await createAnnotatedImage(
+          scan.bestFrame,
+          scan.bestDetections
+        );
 
-          source: "realtime",
+      scanResultsRef.current.resultImage =
+        resultImage;
 
-          summary: scan.summary,
+      navigate(
+        "/realtime-analysis",
+        {
+          state: {
+            source: "realtime",
+            summary: scan.summary,
+            resultImage,
+            framesProcessed: scan.framesProcessed,
+          },
+        }
+      );
 
-          resultImage: scan.resultImage,
+    } catch (err) {
 
-          framesProcessed: scan.framesProcessed,
+      console.error(
+        "Final image creation failed:",
+        err
+      );
 
-        },
+      setError(
+        "Unable to create the final detection image."
+      );
 
-      }
-    );
+      finishingRef.current = false;
+
+    }
 
   };
 
@@ -1232,10 +1609,8 @@ function RealTimeDetection() {
   const runScan = async (endTime) => {
 
     while (
-
       scanActiveRef.current &&
       Date.now() < endTime
-
     ) {
 
       let successful = false;
@@ -1269,17 +1644,16 @@ function RealTimeDetection() {
         return;
       }
 
-      // No unnecessary waiting after successful requests.
-      // Keep a short retry delay only when an error occurs.
+      // Immediate next request after success
+      // Short delay after errors
       const delay = successful
         ? FRAME_INTERVAL
         : 500;
 
-      const remainingTime =
-        Math.max(
-          0,
-          endTime - Date.now()
-        );
+      const remainingTime = Math.max(
+        0,
+        endTime - Date.now()
+      );
 
       if (remainingTime <= 0) {
         break;
@@ -1297,7 +1671,9 @@ function RealTimeDetection() {
     }
 
     if (scanActiveRef.current) {
-      finishScan();
+
+      await finishScan();
+
     }
 
   };
@@ -1323,16 +1699,13 @@ function RealTimeDetection() {
 
     scanActiveRef.current = true;
 
-    scanResultsRef.current = {
+    scanResultsRef.current =
+      createEmptyScanResults();
+      liveTracksRef.current = [];
 
-      framesProcessed: 0,
-      bestScore: -1,
-      summary: [],
-      resultImage: null,
-
-    };
-
-    fpsTimestampsRef.current = [];
+    // Start average FPS timer
+    scanStartedAtRef.current =
+      performance.now();
 
     setCameraFps(0);
 
@@ -1358,13 +1731,10 @@ function RealTimeDetection() {
     timerRef.current = setInterval(() => {
 
       const seconds = Math.max(
-
         0,
-
         Math.ceil(
           (endTime - Date.now()) / 1000
         )
-
       );
 
       setRemaining(seconds);
@@ -1379,7 +1749,7 @@ function RealTimeDetection() {
 
     }, 100);
 
-    // Start sequential inference
+    // Start sequential detection
     void runScan(endTime);
 
   };
@@ -1403,18 +1773,14 @@ function RealTimeDetection() {
   // ========================================
 
   const progress = Math.max(
-
     0,
-
     Math.min(
-
       100,
-
-      ((SCAN_DURATION - remaining) /
-        SCAN_DURATION) * 100
-
+      (
+        (SCAN_DURATION - remaining) /
+        SCAN_DURATION
+      ) * 100
     )
-
   );
 
 
@@ -1511,9 +1877,7 @@ function RealTimeDetection() {
           {error && !cameraOpen && (
 
             <div className="realtime-error">
-
               {error}
-
             </div>
 
           )}
@@ -1522,10 +1886,10 @@ function RealTimeDetection() {
           <button
             className="open-camera-button"
             onClick={openCamera}
-            disabled={cameraOpen}
+            disabled={cameraOpen || cameraOpening}
           >
 
-            {openingCameraRef.current
+            {cameraOpening
               ? "Opening Camera..."
               : "Open Camera"}
 
@@ -1553,7 +1917,6 @@ function RealTimeDetection() {
 
         <div className="webcam-fullscreen">
 
-
           <video
             ref={videoRef}
             className="webcam-video"
@@ -1580,9 +1943,7 @@ function RealTimeDetection() {
             </span>
 
             <strong>
-
               00:{String(remaining).padStart(2, "0")}
-
             </strong>
 
             <div className="webcam-countdown-track">
@@ -1625,7 +1986,7 @@ function RealTimeDetection() {
 
             <div className="webcam-metric">
 
-              <span>AI FPS</span>
+              <span>AI FPS (AVG)</span>
 
               <strong>
                 {metrics.fps}
@@ -1715,7 +2076,7 @@ function RealTimeDetection() {
       )}
 
 
-      {/* Hidden capture canvas */}
+      {/* Hidden Capture Canvas */}
 
       <canvas
         ref={canvasRef}
