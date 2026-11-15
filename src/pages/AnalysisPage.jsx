@@ -1,10 +1,49 @@
+
 import { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import html2pdf from "html2pdf.js";
+
 import Navbar from "../components/Navbar";
+import { getRecommendation } from "../utils/recommendationEngine";
+
 import "./AnalysisPage.css";
 
+
+// ======================================
+// CONFIGURATION
+// ======================================
+
+const API_URL = "http://127.0.0.1:8000";
+
+
+
+const renderFormattedText = (text) => {
+  if (typeof text !== "string") return text;
+
+  return text.split(/(\*\*.*?\*\*)/g).map((part, index) => {
+
+    if (part.startsWith("**") && part.endsWith("**")) {
+
+      return (
+        <strong key={index}>
+          {part.slice(2, -2)}
+        </strong>
+      );
+
+    }
+
+    return part;
+
+  });
+};
+
+
+// ======================================
+// COMPONENT
+// ======================================
+
 function AnalysisPage() {
+
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -13,307 +52,606 @@ function AnalysisPage() {
   const [loading, setLoading] = useState(true);
   const [result, setResult] = useState(null);
   const [progress, setProgress] = useState(0);
+  const [analysisError, setAnalysisError] = useState("");
+
+
+  // ======================================
+  // ANALYZE IMAGE
+  // ======================================
 
   useEffect(() => {
+
     if (!file) {
-      navigate("/");
+
+      navigate("/", { replace: true });
+
       return;
+
     }
 
-    const timer = setInterval(() => {
-      setProgress((prev) => {
-        if (prev >= 95) {
-          clearInterval(timer);
+    const controller = new AbortController();
+
+    let isMounted = true;
+
+    let progressTimer = null;
+    let finishTimer = null;
+
+
+    // Progress Animation
+    progressTimer = setInterval(() => {
+
+      setProgress((previous) => {
+
+        if (previous >= 95) {
           return 95;
         }
-        return prev + Math.floor(Math.random() * 7);
+
+        return Math.min(
+          95,
+          previous + Math.floor(Math.random() * 5) + 1
+        );
+
       });
+
     }, 180);
+
+
+    const analyzeImage = async () => {
+
+      try {
+
+        const formData = new FormData();
+
+        formData.append("file", file);
+
+
+        const response = await fetch(
+          `${API_URL}/predict`,
+          {
+            method: "POST",
+            body: formData,
+            signal: controller.signal
+          }
+        );
+
+
+        if (!response.ok) {
+
+          throw new Error(
+            `Analysis failed: ${response.status}`
+          );
+
+        }
+
+
+        const data = await response.json();
+
+
+        if (!isMounted) return;
+
+
+        clearInterval(progressTimer);
+
+        setProgress(100);
+
+
+        finishTimer = setTimeout(() => {
+
+          if (!isMounted) return;
+
+          setResult(data);
+
+          setLoading(false);
+
+        }, 600);
+
+
+      } catch (error) {
+
+        if (error.name === "AbortError") return;
+
+        console.error(
+          "Image Analysis Error:",
+          error
+        );
+
+
+        if (!isMounted) return;
+
+        clearInterval(progressTimer);
+
+        setAnalysisError(
+          "Unable to analyze this image. Please try again."
+        );
+
+        setLoading(false);
+
+      }
+
+    };
+
 
     analyzeImage();
 
-    return () => clearInterval(timer);
-  }, []);
 
-  const analyzeImage = async () => {
-    try {
-      const formData = new FormData();
-      formData.append("file", file);
+    return () => {
 
-      const response = await fetch("http://127.0.0.1:8000/predict", {
-        method: "POST",
-        body: formData,
-      });
+      isMounted = false;
 
-      const data = await response.json();
-      setProgress(100);
+      controller.abort();
 
-      setTimeout(() => {
-        setResult(data);
-        setLoading(false);
-      }, 600);
-    } catch (error) {
-      console.error(error);
-      alert("Analysis failed.");
-      navigate("/");
-    }
-  };
+      clearInterval(progressTimer);
 
-  // 1. PDF Report Download Function
-  const handleDownloadPDF = () => {
-    const element = document.getElementById("printable-report");
-    if (!element) return;
+      clearTimeout(finishTimer);
 
-    const opt = {
-      margin: [8, 8, 8, 8],
-      filename: `Skin_Analysis_Report_${Date.now()}.pdf`,
-      image: { type: "jpeg", quality: 0.98 },
-      html2canvas: { scale: 2, useCORS: true },
-      jsPDF: { unit: "mm", format: "a4", orientation: "portrait" },
     };
 
-    html2pdf().set(opt).from(element).save();
+  }, [file, navigate]);
+
+
+  // ======================================
+  // DOWNLOAD PDF REPORT
+  // ======================================
+
+  const handleDownloadPDF = () => {
+
+    const element = document.getElementById(
+      "printable-report"
+    );
+
+    if (!element) return;
+
+
+    const options = {
+
+      margin: [8, 8, 8, 8],
+
+      filename: `Aura_Edge_AI_Report_${Date.now()}.pdf`,
+
+      image: {
+        type: "jpeg",
+        quality: 0.98
+      },
+
+      html2canvas: {
+        scale: 2,
+        useCORS: true,
+        backgroundColor: "#ffffff"
+      },
+
+      jsPDF: {
+        unit: "mm",
+        format: "a4",
+        orientation: "portrait"
+      }
+
+    };
+
+
+    html2pdf()
+      .set(options)
+      .from(element)
+      .save();
+
   };
 
-  // 2. Image Download Function
+
+  // ======================================
+  // DOWNLOAD RESULT IMAGE
+  // ======================================
+
   const handleDownloadImage = async () => {
+
     if (!result?.result_image) return;
 
+
     try {
-      const imageUrl = `http://127.0.0.1:8000${result.result_image}`;
+
+      const imageUrl =
+        `${API_URL}${result.result_image}`;
+
+
       const response = await fetch(imageUrl);
+
+      if (!response.ok) {
+        throw new Error("Image download failed.");
+      }
+
+
       const blob = await response.blob();
 
       const url = window.URL.createObjectURL(blob);
+
       const link = document.createElement("a");
+
       link.href = url;
 
-      link.download = `Skin_Analysis_${Date.now()}.jpg`;
+      link.download =
+        `Aura_Edge_AI_Result_${Date.now()}.jpg`;
+
+
       document.body.appendChild(link);
+
       link.click();
 
       link.remove();
-      window.URL.revokeObjectURL(url);
+
+
+      setTimeout(() => {
+        window.URL.revokeObjectURL(url);
+      }, 1000);
+
+
     } catch (error) {
-      console.error("Download failed:", error);
+
+      console.error(
+        "Download failed:",
+        error
+      );
+
       alert("Cannot download image.");
+
     }
+
   };
 
-  const getRecommendation = (disease, count, confidence) => {
-    switch (disease) {
-      case "Acne":
-        if (count <= 5) {
-          return {
-            severity: "Mild",
-            ingredients: ["Salicylic Acid", "Niacinamide"],
-            treatment: [
-              "Cleanse your face twice daily.",
-              "Use a lightweight moisturizer.",
-              "Apply SPF 30+ sunscreen every morning.",
-            ],
-          };
-        }
-        if (count <= 15) {
-          return {
-            severity: "Moderate",
-            ingredients: ["Salicylic Acid", "Niacinamide", "Benzoyl Peroxide"],
-            treatment: [
-              "Avoid squeezing pimples.",
-              "Use an acne treatment every night.",
-              "Consult a dermatologist if acne persists.",
-            ],
-          };
-        }
-        return {
-          severity: "Severe",
-          ingredients: ["Benzoyl Peroxide", "Adapalene", "Niacinamide"],
-          treatment: [
-            "Multiple acne lesions detected.",
-            "Professional dermatologist consultation is recommended.",
-            "Prescription medication may be required.",
-          ],
-        };
 
-      case "Freckles":
-        if (count <= 10) {
-          return {
-            severity: "Light",
-            ingredients: ["Vitamin C", "Niacinamide"],
-            treatment: ["Wear sunscreen daily.", "Avoid prolonged UV exposure."],
-          };
-        }
-        return {
-          severity: "Extensive",
-          ingredients: ["Vitamin C", "Tranexamic Acid", "Retinol"],
-          treatment: [
-            "Use SPF50 sunscreen.",
-            "Consider professional skin consultation.",
-          ],
-        };
-
-      case "Melasma":
-        return {
-          severity: count < 5 ? "Mild" : "Moderate",
-          ingredients: ["Tranexamic Acid", "Vitamin C", "Niacinamide"],
-          treatment: [
-            "Avoid direct sunlight.",
-            "Use SPF50 every day.",
-            "Apply brightening serum.",
-          ],
-        };
-
-      case "Rosacea":
-        return {
-          severity: count < 5 ? "Mild" : "Moderate",
-          ingredients: ["Azelaic Acid", "Ceramide", "Centella Asiatica"],
-          treatment: [
-            "Avoid spicy food.",
-            "Use gentle cleanser.",
-            "Keep skin moisturized.",
-          ],
-        };
-
-      default:
-        return {
-          severity: "Normal",
-          ingredients: ["Gentle Cleanser", "Moisturizer", "Sunscreen"],
-          treatment: ["Maintain basic skincare routine daily."],
-        };
-    }
-  };
+  // ======================================
+  // LOADING SCREEN
+  // ======================================
 
   if (loading) {
+
     return (
+
       <>
         <Navbar />
+
         <div className="analysis-loading">
+
           <div className="loader-circle">
-            <div className="loader-spinner"></div>
+
+            <div className="loader-spinner" />
+
             <span>{progress}%</span>
+
           </div>
+
+
           <h2>Analyzing Your Skin</h2>
+
+
           <p>
-            {progress < 30 && "Uploading facial image..."}
-            {progress >= 30 && progress < 60 && "Detecting facial skin disease..."}
-            {progress >= 60 && progress < 90 && "Analyzing detected regions..."}
-            {progress >= 90 && "Generating personalized recommendations..."}
+
+            {progress < 30 &&
+              "Uploading facial image..."}
+
+            {progress >= 30 &&
+              progress < 60 &&
+              "Detecting facial skin conditions..."}
+
+            {progress >= 60 &&
+              progress < 90 &&
+              "Analyzing detected regions..."}
+
+            {progress >= 90 &&
+              "Preparing skincare recommendations..."}
+
           </p>
+
+
           <div className="progress-bar">
-            <div className="progress-fill" style={{ width: `${progress}%` }}></div>
+
+            <div
+              className="progress-fill"
+              style={{
+                width: `${progress}%`
+              }}
+            />
+
           </div>
+
         </div>
+
       </>
+
     );
+
   }
 
-  const detections = result?.detections || [];
 
-  // Group detections by disease class
-  const groupedDetections = detections.reduce((acc, item) => {
-    if (!acc[item.class]) {
-      acc[item.class] = [];
-    }
-    acc[item.class].push(item);
-    return acc;
-  }, {});
+  // ======================================
+  // ERROR SCREEN
+  // ======================================
 
-  const detectedDiseases = Object.keys(groupedDetections).map((disease) => {
-    const items = groupedDetections[disease];
+  if (analysisError || !result) {
+
+    return (
+
+      <>
+        <Navbar />
+
+        <div className="analysis-loading">
+
+          <h2>Analysis Unsuccessful</h2>
+
+          <p>
+            {analysisError || "No analysis result available."}
+          </p>
+
+          <button
+            className="download-btn"
+            onClick={() => navigate("/")}
+          >
+            Back to Home
+          </button>
+
+        </div>
+
+      </>
+
+    );
+
+  }
+
+
+  // ======================================
+  // GROUP DETECTIONS
+  // ======================================
+
+  const detections = Array.isArray(result.detections)
+    ? result.detections
+    : [];
+
+
+  const groupedDetections = detections.reduce(
+    (accumulator, item) => {
+
+      const disease = item.class || "Unknown";
+
+      if (!accumulator[disease]) {
+        accumulator[disease] = [];
+      }
+
+      accumulator[disease].push(item);
+
+      return accumulator;
+
+    },
+    {}
+  );
+
+
+  // ======================================
+  // GENERATE CONDITION REPORTS
+  // ======================================
+
+  const detectedDiseases = Object.entries(
+    groupedDetections
+  ).map(([diseaseName, items]) => {
+
     const count = items.length;
-    const maxConfidence = Math.max(...items.map((i) => i.confidence));
+
     return {
-      diseaseName: disease,
+
+      diseaseName,
+
       count,
-      maxConfidence,
-      recommendation: getRecommendation(disease, count, maxConfidence),
+
+      recommendation: getRecommendation(
+        diseaseName,
+        count
+      )
+
     };
+
   });
 
+
+  // ======================================
+  // MAIN UI
+  // ======================================
+
   return (
+
     <>
       <Navbar />
+
       <main className="analysis-page">
-        {/* PDF ထွက်သည့်အခါ ဤဧရိယာတစ်ခုလုံး ပါဝင်မည်ဖြစ်သည် */}
-        <div className="analysis-container" id="printable-report">
-          {/* LEFT */}
+
+        <div
+          className="analysis-container"
+          id="printable-report"
+        >
+
+
+          {/* LEFT SIDE */}
+
           <div className="analysis-left">
+
             <div className="image-card">
-              <img
-                src={`http://127.0.0.1:8000${result?.result_image}`}
-                alt="Detection"
-                className="detection-image"
-                crossOrigin="anonymous"
-              />
+
+              {result.result_image && (
+
+                <img
+                  src={`${API_URL}${result.result_image}`}
+                  alt="AI Skin Detection Result"
+                  className="detection-image"
+                  crossOrigin="anonymous"
+                />
+
+              )}
+
             </div>
+
           </div>
 
-          {/* RIGHT */}
+
+          {/* RIGHT SIDE */}
+
           <div className="analysis-right">
+
             <div className="report-card">
-              <h3 className="report-header">Aura Edge AI Report</h3>
+
+              <h3 className="report-header">
+                Aura Edge AI Report
+              </h3>
+
 
               {detectedDiseases.length === 0 ? (
-                <div className="disease-block">
-                  
-                  <p className="status-text">No skin disease detected.</p>
+
+                <div className="no-detection-message">
+
+                  <h2>No Target Condition Detected</h2>
+
+                  <p>
+                    When this image was analyzed using AI, no specific skin conditions were detected. However, the fact that the AI ​​did not detect anything does not confirm that there are absolutely no skin issues present.
+                  </p>
+
+                  <p>
+                   If you have any concerns regarding your skin, you should consult a dermatologist.
+                  </p>
+
                 </div>
+
               ) : (
+
                 detectedDiseases.map((item, index) => (
-                  <div key={index} className="disease-block">
+
+                  <div
+                    key={`${item.diseaseName}-${index}`}
+                    className="disease-block"
+                  >
+
+
+                    {/* CONDITION HEADER */}
+
                     <div className="disease-header">
-                      <h2 className="disease-title">{item.diseaseName}</h2>
-                      <span
-                        className={`severity-badge ${item.recommendation.severity.toLowerCase()}`}
-                      >
-                        {item.recommendation.severity}
+
+                      <h2 className="disease-title">
+                        {item.recommendation.conditionName}
+                      </h2>
+
+                      <span className="detection-status-badge">
+                        AI Detected
                       </span>
+
                     </div>
+
+
+                    {/* DETECTED COUNT */}
 
                     <div className="stats-row">
+
                       <p>
-                        <strong>Detected Areas:</strong> <span>{item.count}</span>
+
+                        <strong>
+                          Detected Areas:
+                        </strong>
+
+                        {" "}
+
+                        <span>
+                          {item.count}
+                        </span>
+
                       </p>
-                    
+
                     </div>
 
-                    <h4 className="section-title">Recommended Ingredients</h4>
-                    {item.recommendation.ingredients.map((ing, idx) => (
-                      <p key={idx} className="list-item">
-                        ✓ {ing}
-                      </p>
-                    ))}
 
-                    <h4 className="section-title">Treatment Recommendation</h4>
-                    {item.recommendation.treatment.map((treat, idx) => (
-                      <p key={idx} className="list-item">
-                        ✓ {treat}
-                      </p>
-                    ))}
+                    {/* SINGLE RECOMMENDATION BOX */}
+
+                    <div className="recommendation-box">
+
+                      <h4 className="recommendation-title">
+                        Recommendations
+                      </h4>
+
+
+                      <div className="recommendation-content">
+
+                        {item.recommendation.paragraphs.map(
+                          (paragraph, paragraphIndex) => (
+
+                           <p key={paragraphIndex}>
+  {renderFormattedText(paragraph)}
+</p>
+
+                          )
+                        )}
+
+                      </div>
+
+                    </div>
+
+
                   </div>
+
                 ))
+
               )}
+
+
+              {/* IMPORTANT DISCLAIMER */}
+
+              <div className="recommendation-disclaimer">
+
+                <h4>
+                  Important Note
+                </h4>
+
+                <p>
+                 These results provide general recommendations based on visual findings—analyzed from facial images by an AI model—and a skincare knowledge base. They do not constitute a medical diagnosis and cannot replace professional medical treatment. For an accurate assessment of your skin condition, it is best to consult with a dermatologist.
+                </p>
+
+              </div>
+
+
             </div>
 
+
             {/* ACTION BUTTONS */}
+
             <div className="action-buttons">
-              <button className="download-btn" onClick={handleDownloadPDF}>
+
+              <button
+                className="download-btn"
+                onClick={handleDownloadPDF}
+              >
                 📄 Download PDF Report
               </button>
 
-              <button className="download-btn secondary" onClick={handleDownloadImage}>
+
+              <button
+                className="download-btn secondary"
+                onClick={handleDownloadImage}
+              >
                 🖼️ Download Image Only
               </button>
 
-              <button className="download-btn secondary" onClick={() => navigate("/")}>
+
+              <button
+                className="download-btn secondary"
+                onClick={() => navigate("/")}
+              >
                 Analyze Another Image
               </button>
+
             </div>
+
+
           </div>
+
         </div>
+
       </main>
+
     </>
+
   );
+
 }
+
 
 export default AnalysisPage;

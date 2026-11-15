@@ -1866,7 +1866,7 @@ drawDetections(
             </h3>
 
             <p>
-              Open your camera to begin the facial skin scan.
+              Open your camera to begin the facial skin scan. Since it operates in real time, you will get better results if you position your face close to the camera.
               Your detection results and recommendations
               will appear on the next page.
             </p>
