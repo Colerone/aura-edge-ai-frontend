@@ -309,44 +309,6 @@
    RESPONSIVE
 ========================================================= */
 
-@media (max-width: 1000px) {
-  .detection-section {
-    grid-template-columns: 1fr;
-    gap: 80px;
-    padding: 100px 7%;
-  }
-
-  .detection-left,
-  .detection-right {
-    max-width: 700px;
-    margin: auto;
-  }
-}
-
-@media (max-width: 600px) {
-  .detection-section {
-    padding: 80px 20px;
-    gap: 55px;
-  }
-
-  .skin-image-wrapper {
-    height: 230px;
-  }
-
-  .upload-box {
-    height: 320px;
-  }
-
-  .upload-btn-blue {
-    padding: 14px 32px;
-    font-size: 16px;
-  }
-
-  .drop-text {
-    font-size: 15px !important;
-  }
-}
-
 /* =========================================================
    SAMPLE IMAGES
 ========================================================= */

@@ -129,29 +129,3 @@
 /* =========================================================
    RESPONSIVE
 ========================================================= */
-@media (max-width: 900px) {
-  .comparison-section {
-    padding: 90px 6%;
-  }
-  .comparison-container {
-    height: 480px;
-  }
-}
-
-@media (max-width: 600px) {
-  .comparison-section {
-    padding: 80px 20px;
-  }
-  .comparison-header {
-    margin-bottom: 35px;
-  }
-  .comparison-container {
-    height: 400px;
-    border-radius: 20px;
-  }
-  .slider-button {
-    width: 42px;
-    height: 42px;
-    font-size: 16px;
-  }
-}

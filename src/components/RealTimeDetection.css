@@ -250,12 +250,9 @@
   color: #ffffff;
 }
 
-@media (max-width: 600px) {
-  .webcam-close-minimal {
-    top: 12px;
-    right: 12px;
-  }
-}
+
+
+
 
 
 /* =========================================
@@ -435,32 +432,3 @@
 /* =========================================
    RESPONSIVE
 ========================================= */
-
-@media (max-width: 600px) {
-  .webcam-countdown {
-    top: 15px;
-    right: 58px;
-    width: 125px;
-    padding: 11px 12px;
-  }
-
-  .webcam-countdown > strong {
-    font-size: 24px;
-  }
-
-  .webcam-performance {
-    left: 12px;
-    bottom: 15px;
-    width: 190px;
-    padding: 13px;
-    gap: 10px;
-  }
-
-  .webcam-metric strong {
-    font-size: 15px;
-  }
-
-  .webcam-metric span {
-    font-size: 9px;
-  }
-}

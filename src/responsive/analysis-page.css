@@ -1,0 +1,227 @@
+/* Responsive styles only. Desktop/base styles remain in the original component CSS. */
+
+@media(max-width: 1024px) {
+  .analysis-container {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 768px) {
+  .analysis-loading {
+    min-height: calc(100vh - 70px);
+  }
+
+  .loader-circle {
+    width: 130px;
+    height: 130px;
+  }
+
+  .loader-spinner {
+    width: 90px;
+    height: 90px;
+  }
+
+  .analysis-loading h2 {
+    font-size: 22px;
+  }
+
+  .analysis-loading > p {
+    font-size: 13px;
+  }
+
+  .progress-bar {
+    width: 75vw;
+  }
+}
+
+@media (max-width: 600px) {
+
+  .recommendation-box {
+    padding: 16px 14px;
+  }
+
+  .recommendation-title {
+    font-size: 14px;
+  }
+
+  .recommendation-content p {
+    font-size: 12px;
+    line-height: 1.8;
+  }
+
+  .recommendation-disclaimer {
+    padding: 14px;
+  }
+
+  .recommendation-disclaimer p {
+    font-size: 11px;
+  }
+
+}
+
+/* Tablet and phone layout for uploaded-image result page */
+@media (max-width: 1024px) {
+  .analysis-page {
+    padding: 26px 4vw 48px;
+  }
+
+  .analysis-container {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 20px;
+    max-width: 760px;
+  }
+
+  .analysis-left,
+  .analysis-right {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .detection-image {
+    max-height: 65vh;
+  }
+
+  .report-card {
+    max-height: none;
+    overflow: visible;
+  }
+}
+
+@media (max-width: 600px) {
+  .analysis-page {
+    padding: 18px 12px 34px;
+  }
+
+  .analysis-container {
+    gap: 14px;
+  }
+
+  .image-card {
+    border-radius: 14px;
+  }
+
+  .detection-image {
+    width: 100%;
+    max-height: 52vh;
+    border-radius: 12px;
+  }
+
+  .analysis-right {
+    gap: 12px;
+  }
+
+  .report-card {
+    padding: 17px 15px;
+    border-radius: 15px;
+  }
+
+  .report-header {
+    margin-bottom: 14px;
+    font-size: 10px;
+    letter-spacing: 1px;
+  }
+
+  .disease-block {
+    padding-bottom: 16px;
+    margin-bottom: 16px;
+  }
+
+  .disease-header {
+    align-items: flex-start;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
+  .disease-title {
+    font-size: 21px;
+  }
+
+  .stats-row {
+    padding: 9px 11px;
+    margin-bottom: 10px;
+  }
+
+  .stats-row p,
+  .stats-row strong {
+    font-size: 12px;
+  }
+
+  .recommendation-box {
+    margin-top: 14px;
+    padding: 16px 14px;
+  }
+
+  .recommendation-title {
+    font-size: 14px;
+    margin-bottom: 11px;
+  }
+
+  .recommendation-content {
+    gap: 10px;
+  }
+
+  .recommendation-content p {
+    font-size: 12px;
+    line-height: 1.8;
+    overflow-wrap: anywhere;
+  }
+
+  .recommendation-disclaimer {
+    margin-top: 13px;
+    padding: 13px;
+  }
+
+  .recommendation-disclaimer p {
+    font-size: 11px;
+    line-height: 1.75;
+  }
+
+  .action-buttons {
+    gap: 9px;
+  }
+
+  .download-btn {
+    width: 100%;
+    min-height: 46px;
+    padding: 12px;
+    font-size: 12px;
+  }
+
+  .analysis-loading {
+    min-height: calc(100dvh - 62px);
+    padding: 30px 16px;
+  }
+
+  .loader-circle {
+    width: 124px;
+    height: 124px;
+    margin-bottom: 24px;
+  }
+
+  .loader-spinner {
+    width: 88px;
+    height: 88px;
+  }
+
+  .analysis-loading h2 {
+    font-size: 21px;
+  }
+
+  .analysis-loading > p {
+    font-size: 12px;
+  }
+}
+
+@media (max-width: 360px) {
+  .analysis-page {
+    padding-inline: 10px;
+  }
+
+  .report-card {
+    padding: 15px 12px;
+  }
+
+  .disease-title {
+    font-size: 19px;
+  }
+}

@@ -1,0 +1,186 @@
+/* Responsive styles only. Desktop/base styles remain in the original component CSS. */
+
+@media (max-width: 1000px) {
+  .detection-section {
+    grid-template-columns: 1fr;
+    gap: 80px;
+    padding: 100px 7%;
+  }
+
+  .detection-left,
+  .detection-right {
+    max-width: 700px;
+    margin: auto;
+  }
+}
+
+@media (max-width: 600px) {
+  .detection-section {
+    padding: 80px 20px;
+    gap: 55px;
+  }
+
+  .skin-image-wrapper {
+    height: 230px;
+  }
+
+  .upload-box {
+    height: 320px;
+  }
+
+  .upload-btn-blue {
+    padding: 14px 32px;
+    font-size: 16px;
+  }
+
+  .drop-text {
+    font-size: 15px !important;
+  }
+}
+
+/* Tablet layout */
+@media (max-width: 1000px) {
+  .detection-section {
+    width: 100%;
+    min-height: auto;
+    margin: 0;
+    grid-template-columns: minmax(0, 1fr);
+    gap: clamp(38px, 7vw, 64px);
+    padding: clamp(54px, 8vw, 82px) clamp(22px, 7vw, 60px);
+  }
+
+  .detection-left,
+  .detection-right {
+    width: 100%;
+    max-width: 700px;
+    min-width: 0;
+    margin-inline: auto;
+  }
+
+  .upload-content {
+    width: 100%;
+    max-width: 560px;
+  }
+
+  .upload-box {
+    width: 100%;
+  }
+
+  .sample-images-section {
+    width: 100%;
+  }
+}
+
+/* Phones */
+@media (max-width: 600px) {
+  .detection-section {
+    width: 100%;
+    min-height: auto;
+    margin: 0;
+    padding: 42px 16px 48px;
+    gap: 38px;
+    overflow: hidden;
+  }
+
+  .detection-title {
+    font-size: clamp(30px, 9vw, 42px);
+    letter-spacing: -1.5px;
+  }
+
+  .detection-description {
+    margin: 15px 0 22px;
+    font-size: 13px;
+  }
+
+  .skin-image-wrapper {
+    height: clamp(210px, 62vw, 280px);
+    margin-bottom: 20px;
+    border-radius: 18px;
+  }
+
+  .upload-description {
+    margin: 8px 0 14px;
+    font-size: clamp(20px, 6vw, 25px);
+    line-height: 1.35;
+  }
+
+  .detection-types {
+    justify-content: center;
+    gap: 8px;
+    margin-bottom: 20px;
+    font-size: 11px;
+  }
+
+  .upload-box {
+    width: 100%;
+    height: clamp(230px, 72vw, 300px);
+    padding: 16px;
+    border-radius: 22px;
+  }
+
+  .upload-btn-blue {
+    padding: 13px 28px;
+    font-size: 15px;
+  }
+
+  .drop-text {
+    margin-top: 16px !important;
+    font-size: 14px !important;
+  }
+
+  .sample-images-section {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+    margin-top: 20px;
+  }
+
+  .sample-text {
+    min-width: 0;
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 4px;
+    font-size: 12px;
+  }
+
+  .sample-text strong {
+    font-size: 12px;
+  }
+
+  .sample-images {
+    width: 100%;
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 8px;
+  }
+
+  .sample-images img {
+    width: 100%;
+    height: auto;
+    aspect-ratio: 1 / 1;
+    min-width: 0;
+    border-radius: 10px;
+  }
+
+  .analyze-button {
+    min-height: 48px;
+    padding: 13px 16px;
+  }
+}
+
+@media (max-width: 360px) {
+  .detection-section {
+    padding-inline: 12px;
+  }
+
+  .detection-types {
+    gap: 6px;
+    font-size: 10px;
+  }
+
+  .sample-images {
+    gap: 6px;
+  }
+}

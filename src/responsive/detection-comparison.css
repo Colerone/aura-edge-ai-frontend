@@ -1,0 +1,87 @@
+/* Responsive styles only. Desktop/base styles remain in the original component CSS. */
+
+@media (max-width: 900px) {
+  .comparison-section {
+    padding: 90px 6%;
+  }
+  .comparison-container {
+    height: 480px;
+  }
+}
+
+@media (max-width: 600px) {
+  .comparison-section {
+    padding: 80px 20px;
+  }
+  .comparison-header {
+    margin-bottom: 35px;
+  }
+  .comparison-container {
+    height: 400px;
+    border-radius: 20px;
+  }
+  .slider-button {
+    width: 42px;
+    height: 42px;
+    font-size: 16px;
+  }
+}
+
+@media (max-width: 900px) {
+  .comparison-section {
+    min-height: auto;
+    padding: 76px 6% 84px;
+  }
+
+  .comparison-container {
+    width: 100%;
+    height: auto;
+    aspect-ratio: 16 / 10;
+  }
+}
+
+@media (max-width: 600px) {
+  .comparison-section {
+    min-height: auto;
+    padding: 52px 16px 60px;
+  }
+
+  .comparison-header {
+    margin-bottom: 25px;
+  }
+
+  .comparison-title {
+    font-size: clamp(24px, 7vw, 30px);
+    line-height: 1.15;
+  }
+
+  .comparison-container {
+    width: 100%;
+    height: auto;
+    aspect-ratio: 4 / 5;
+    border-radius: 16px;
+    touch-action: pan-y;
+  }
+
+  .slider-button {
+    width: 40px;
+    height: 40px;
+    font-size: 16px;
+  }
+}
+
+@media (max-width: 360px) {
+  .comparison-section {
+    padding-inline: 12px;
+  }
+
+  .comparison-container {
+    border-radius: 13px;
+  }
+
+  .slider-button {
+    width: 36px;
+    height: 36px;
+    font-size: 14px;
+  }
+}

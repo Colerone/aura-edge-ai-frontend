@@ -184,11 +184,9 @@
 }
 
 /* RESPONSIVE */
-@media(max-width: 1024px) {
-  .analysis-container {
-    grid-template-columns: 1fr;
-  }
-}
+
+
+
 
 .action-buttons {
   display: flex;
@@ -413,33 +411,9 @@
    LOADING RESPONSIVE
 ================================ */
 
-@media (max-width: 768px) {
-  .analysis-loading {
-    min-height: calc(100vh - 70px);
-  }
 
-  .loader-circle {
-    width: 130px;
-    height: 130px;
-  }
 
-  .loader-spinner {
-    width: 90px;
-    height: 90px;
-  }
 
-  .analysis-loading h2 {
-    font-size: 22px;
-  }
-
-  .analysis-loading > p {
-    font-size: 13px;
-  }
-
-  .progress-bar {
-    width: 75vw;
-  }
-}
 
 
 /* =========================================
@@ -586,27 +560,3 @@
 /* =========================================
    MOBILE RESPONSIVE
 ========================================= */
-@media (max-width: 600px) {
-
-  .recommendation-box {
-    padding: 16px 14px;
-  }
-
-  .recommendation-title {
-    font-size: 14px;
-  }
-
-  .recommendation-content p {
-    font-size: 12px;
-    line-height: 1.8;
-  }
-
-  .recommendation-disclaimer {
-    padding: 14px;
-  }
-
-  .recommendation-disclaimer p {
-    font-size: 11px;
-  }
-
-}

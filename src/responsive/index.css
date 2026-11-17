@@ -1,0 +1,10 @@
+/* Import this file once from main.jsx after the application imports. */
+@import "./global.css";
+@import "./navbar.css";
+@import "./hero.css";
+@import "./detection-selection.css";
+@import "./detection-comparison.css";
+@import "./real-time-detection.css";
+@import "./analysis-page.css";
+@import "./real-time-analysis-page.css";
+@import "./footer.css";

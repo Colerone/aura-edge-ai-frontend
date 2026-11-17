@@ -1,0 +1,36 @@
+/* Global responsive safety rules only. */
+@media (max-width: 1024px) {
+  html,
+  body,
+  #root {
+    width: 100%;
+    min-width: 0;
+  }
+
+  img,
+  video,
+  canvas,
+  svg {
+    max-width: 100%;
+  }
+
+  button,
+  input,
+  textarea,
+  select {
+    max-width: 100%;
+  }
+}
+
+@media (max-width: 600px) {
+  body {
+    overflow-x: hidden;
+  }
+
+  section,
+  main,
+  footer,
+  nav {
+    min-width: 0;
+  }
+}

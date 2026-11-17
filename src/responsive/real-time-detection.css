@@ -1,0 +1,172 @@
+/* Responsive styles only. Desktop/base styles remain in the original component CSS. */
+
+@media (max-width: 600px) {
+  .webcam-close-minimal {
+    top: 12px;
+    right: 12px;
+  }
+}
+
+@media (max-width: 600px) {
+  .webcam-countdown {
+    top: 15px;
+    right: 58px;
+    width: 125px;
+    padding: 11px 12px;
+  }
+
+  .webcam-countdown > strong {
+    font-size: 24px;
+  }
+
+  .webcam-performance {
+    left: 12px;
+    bottom: 15px;
+    width: 190px;
+    padding: 13px;
+    gap: 10px;
+  }
+
+  .webcam-metric strong {
+    font-size: 15px;
+  }
+
+  .webcam-metric span {
+    font-size: 9px;
+  }
+}
+
+/* Real-time scan landing section */
+@media (max-width: 700px) {
+  .realtime-section {
+    padding: 58px 16px 64px;
+  }
+
+  .realtime-header {
+    margin-bottom: 28px;
+  }
+
+  .realtime-header h2 {
+    font-size: clamp(25px, 7vw, 34px);
+    letter-spacing: -0.8px;
+  }
+
+  .realtime-header p {
+    font-size: 12px;
+  }
+
+  .scan-statistics {
+    gap: clamp(22px, 8vw, 48px);
+    padding: 12px 0 20px;
+  }
+
+  .stat-item strong {
+    font-size: 24px;
+  }
+
+  .skin-conditions {
+    gap: 8px;
+    padding: 16px 0;
+    font-size: 11px;
+  }
+
+  .scan-description {
+    margin: 26px auto 20px;
+  }
+
+  .scan-description h3 {
+    font-size: 17px;
+  }
+
+  .open-camera-button {
+    max-width: 100%;
+  }
+}
+
+/* Fullscreen camera overlays */
+@media (max-width: 600px) {
+  .webcam-fullscreen {
+    width: 100vw;
+    height: 100vh;
+    height: 100dvh;
+  }
+
+  .webcam-close-minimal {
+    top: max(10px, env(safe-area-inset-top));
+    right: 10px;
+    width: 38px;
+    height: 38px;
+  }
+
+  .webcam-countdown {
+    top: max(10px, env(safe-area-inset-top));
+    right: 56px;
+    width: 118px;
+    padding: 9px 10px;
+    gap: 5px;
+  }
+
+  .webcam-countdown > strong {
+    font-size: 22px;
+  }
+
+  .webcam-performance {
+    left: 10px;
+    bottom: max(10px, env(safe-area-inset-bottom));
+    width: min(188px, calc(100vw - 20px));
+    padding: 11px 12px;
+    gap: 8px;
+  }
+
+  .webcam-live-label {
+    padding-bottom: 8px;
+    font-size: 9px;
+  }
+
+  .webcam-metric strong {
+    font-size: 14px;
+  }
+
+  .webcam-metric span {
+    font-size: 8px;
+  }
+}
+
+@media (max-width: 360px) {
+  .webcam-countdown {
+    right: 52px;
+    width: 108px;
+    padding: 8px;
+  }
+
+  .webcam-performance {
+    width: 174px;
+    padding: 9px 10px;
+    gap: 7px;
+  }
+
+  .webcam-metric strong {
+    font-size: 13px;
+  }
+}
+
+/* Very short landscape screens */
+@media (max-width: 900px) and (max-height: 500px) {
+  .webcam-performance {
+    left: 10px;
+    bottom: 8px;
+    width: 170px;
+    padding: 8px 10px;
+    gap: 5px;
+  }
+
+  .webcam-live-label {
+    padding-bottom: 5px;
+  }
+
+  .webcam-countdown {
+    top: 8px;
+    right: 54px;
+    padding: 7px 9px;
+  }
+}
