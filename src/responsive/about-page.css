@@ -1,0 +1,243 @@
+/* Responsive rules for AboutPage only. Base styles live in pages/AboutPage.css. */
+
+@media (max-width: 900px) {
+  .about-hero {
+    padding: 58px 5% 25px;
+  }
+
+  .about-hero-inner {
+    grid-template-columns: minmax(0, 1fr) minmax(280px, .85fr);
+    gap: 32px;
+  }
+
+  .about-visual {
+    min-height: 360px;
+  }
+
+  .about-purpose,
+  .about-technology {
+    grid-template-columns: 1fr;
+    gap: 28px;
+  }
+
+  .about-section {
+    width: min(100% - 10%, 760px);
+    padding-top: 72px;
+    padding-bottom: 72px;
+  }
+
+  .about-workflow {
+    width: 100%;
+    padding: 72px 5%;
+  }
+
+  .about-workflow-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .about-workflow-card:last-child {
+    grid-column: 1 / -1;
+    min-height: auto;
+  }
+
+  .about-condition-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .about-condition-card,
+  .about-condition-card:nth-child(4),
+  .about-condition-card:nth-child(5) {
+    grid-column: auto;
+  }
+
+  .about-responsible {
+    width: min(100% - 10%, 760px);
+  }
+}
+
+@media (max-width: 600px) {
+  .about-hero {
+    padding: 42px 20px 23px;
+  }
+
+  .about-hero-inner {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 28px;
+  }
+
+  .about-hero-copy {
+    padding: 8px 0 0;
+  }
+
+  .about-eyebrow {
+    font-size: 9px;
+    letter-spacing: 1.35px;
+  }
+
+  .about-hero-copy h1 {
+    margin: 14px 0 13px;
+    font-size: clamp(34px, 9vw, 43px);
+    letter-spacing: -1.8px;
+    line-height: 1.14;
+  }
+
+  .about-hero-copy > p {
+    font-size: 12px;
+    line-height: 1.85;
+  }
+
+  .about-hero-actions {
+    gap: 15px;
+    margin-top: 22px;
+  }
+
+  .about-primary-link,
+  .about-secondary-link {
+    min-height: 42px;
+    font-size: 11px;
+  }
+
+  .about-primary-link { padding: 0 14px; }
+
+  .about-visual {
+    min-height: 300px;
+    border-radius: 17px;
+  }
+
+  .about-scan-face {
+    width: 170px;
+    height: 220px;
+  }
+
+  .about-face-outline {
+    transform: scale(.82);
+  }
+
+  .about-orbit { width: 215px; height: 215px; }
+  .about-orbit-two { transform: scale(1.35); }
+
+  .about-visual-caption {
+    right: 12px;
+    bottom: 13px;
+    font-size: 7px;
+  }
+
+  .about-visual-label {
+    top: 13px;
+    left: 13px;
+    font-size: 8px;
+  }
+
+  .about-hero-footnote {
+    gap: 9px;
+    margin-top: 23px;
+    font-size: 8px;
+    letter-spacing: 1px;
+  }
+
+  .about-footnote-line { width: 22px; }
+
+  .about-section {
+    width: calc(100% - 40px);
+    padding: 58px 0;
+  }
+
+  .about-section-heading h2,
+  .about-closing h2 {
+    margin-top: 11px;
+    font-size: 27px;
+    letter-spacing: -1px;
+  }
+
+  .about-purpose-copy p,
+  .about-section-heading > p,
+  .about-responsible p {
+    font-size: 12px;
+    line-height: 1.9;
+  }
+
+  .about-workflow {
+    padding: 58px 20px;
+  }
+
+  .about-centered-heading {
+    margin-bottom: 25px;
+  }
+
+  .about-workflow-grid {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 11px;
+  }
+
+  .about-workflow-card,
+  .about-workflow-card:last-child {
+    grid-column: auto;
+    min-height: auto;
+    padding: 19px;
+  }
+
+  .about-card-rule { margin: 13px 0; }
+
+  .about-workflow-card h3,
+  .about-condition-card h3 { font-size: 14px; }
+
+  .about-workflow-card p,
+  .about-condition-card p { font-size: 11px; }
+
+  .about-condition-grid {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 10px;
+  }
+
+  .about-condition-card,
+  .about-condition-card:nth-child(4),
+  .about-condition-card:nth-child(5) {
+    grid-column: auto;
+    min-height: auto;
+    padding: 17px;
+  }
+
+  .about-condition-card > span {
+    margin-bottom: 10px;
+  }
+
+  .about-technology {
+    gap: 23px;
+  }
+
+  .about-tech-row {
+    grid-template-columns: 27px minmax(0, 1fr);
+    gap: 9px;
+    padding: 15px 0;
+  }
+
+  .about-tech-row p {
+    grid-column: 2;
+    font-size: 11px;
+  }
+
+  .about-tech-main h3 { font-size: 12px; }
+
+  .about-responsible {
+    grid-template-columns: 1fr;
+    gap: 14px;
+    width: calc(100% - 40px);
+    margin-bottom: 55px;
+    padding: 20px;
+  }
+
+  .about-responsible h2 {
+    font-size: 23px;
+    letter-spacing: -.8px;
+  }
+
+  .about-closing {
+    padding: 49px 20px;
+  }
+}
+
+@media (max-width: 360px) {
+  .about-hero-copy h1 { font-size: 32px; }
+  .about-hero-actions { align-items: flex-start; flex-direction: column; }
+  .about-visual { min-height: 270px; }
+}

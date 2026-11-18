@@ -16,6 +16,7 @@ const CAMERA_FPS = 30;
 
 const MAX_AI_FRAME_WIDTH = 640;
 const JPEG_QUALITY = 0.80;
+const METRICS_WINDOW_SIZE = 10;
 
 const API_URL = "http://127.0.0.1:8001";
 
@@ -31,6 +32,16 @@ const createEmptyScanResults = () => ({
   resultImage: null,
   bestFrame: null,
   bestDetections: [],
+});
+
+
+// ========================================
+// INITIAL PERFORMANCE HISTORY
+// ========================================
+
+const createEmptyMetricsHistory = () => ({
+  latency: [],
+  inference: [],
 });
 
 
@@ -60,6 +71,11 @@ function RealTimeDetection() {
 
   // Average FPS Timer
   const scanStartedAtRef = useRef(0);
+
+  // Rolling Performance Metrics (latest 10 successful frames)
+  const metricsHistoryRef = useRef(
+    createEmptyMetricsHistory()
+  );
 
   // Scan Results
   const scanResultsRef = useRef(
@@ -960,6 +976,9 @@ const stabilizeLiveDetections = (detections) => {
       scanResultsRef.current =
         createEmptyScanResults();
 
+      // Reset rolling performance history
+      metricsHistoryRef.current = createEmptyMetricsHistory();
+
       // Reset performance metrics
       setCameraFps(0);
 
@@ -1053,6 +1072,9 @@ const stabilizeLiveDetections = (detections) => {
     setScanning(false);
 
     setCameraFps(0);
+
+    // Clear rolling metrics when the camera closes
+    metricsHistoryRef.current = createEmptyMetricsHistory();
 
     setRemaining(SCAN_DURATION);
 
@@ -1407,9 +1429,48 @@ const stabilizeLiveDetections = (detections) => {
       return;
     }
 
-    // Total browser request time
-    const latency =
-      performance.now() - requestStart;
+    // Total browser request time.
+    // This includes frame capture, JPEG encoding, the API request,
+    // response transfer, and JSON parsing.
+    const latency = performance.now() - requestStart;
+
+    // AI inference time reported by the backend.
+    const rawInferenceLatency = Number(
+      data.performance?.inference_ms ?? 0
+    );
+
+    const inferenceLatency =
+      Number.isFinite(rawInferenceLatency) && rawInferenceLatency >= 0
+        ? rawInferenceLatency
+        : 0;
+
+    // Keep measurements from the latest 10 successful frames.
+    const metricsHistory = metricsHistoryRef.current;
+
+    metricsHistory.latency.push(latency);
+    metricsHistory.inference.push(inferenceLatency);
+
+    if (metricsHistory.latency.length > METRICS_WINDOW_SIZE) {
+      metricsHistory.latency.shift();
+    }
+
+    if (metricsHistory.inference.length > METRICS_WINDOW_SIZE) {
+      metricsHistory.inference.shift();
+    }
+
+    // Calculate rolling averages. During the first 9 frames,
+    // average the measurements collected so far.
+    const averageLatency =
+      metricsHistory.latency.reduce(
+        (total, value) => total + value,
+        0
+      ) / metricsHistory.latency.length;
+
+    const averageInferenceLatency =
+      metricsHistory.inference.reduce(
+        (total, value) => total + value,
+        0
+      ) / metricsHistory.inference.length;
 
     const detections =
       Array.isArray(data.detections)
@@ -1497,16 +1558,14 @@ drawDetections(
       ).toFixed(1)
     );
 
-    // Update metrics
+    // Update the on-screen metrics using rolling averages
     setMetrics({
 
       fps: currentFPS,
 
-      latency: latency.toFixed(1),
+      latency: averageLatency.toFixed(1),
 
-      inferenceLatency: Number(
-        data.performance?.inference_ms ?? 0
-      ).toFixed(1),
+      inferenceLatency: averageInferenceLatency.toFixed(1),
 
       frames:
         scanResultsRef.current.framesProcessed,
@@ -1701,7 +1760,11 @@ drawDetections(
 
     scanResultsRef.current =
       createEmptyScanResults();
-      liveTracksRef.current = [];
+
+    liveTracksRef.current = [];
+
+    // Reset rolling averages for this scan
+    metricsHistoryRef.current = createEmptyMetricsHistory();
 
     // Start average FPS timer
     scanStartedAtRef.current =
@@ -1997,7 +2060,9 @@ drawDetections(
 
             <div className="webcam-metric">
 
-              <span>TOTAL LATENCY</span>
+              <span title="Average of the latest 10 successful frames">
+                TOTAL LATENCY (AVG)
+              </span>
 
               <strong>
                 {metrics.latency} ms
@@ -2008,7 +2073,9 @@ drawDetections(
 
             <div className="webcam-metric">
 
-              <span>AI INFERENCE</span>
+              <span title="Average of the latest 10 successful frames">
+                AI INFERENCE (AVG)
+              </span>
 
               <strong>
                 {metrics.inferenceLatency} ms
